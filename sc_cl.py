@@ -5,9 +5,11 @@ from bs4 import BeautifulSoup
 import urllib
 import time
 
-scrape_artist = 'MF_DOOM'
-artist_page = 'http://ohhla.com/YFA_mfdoom.html'
+#next adaptation, put in multiple artists
+artist_to_scrape = 'Odd_Future'
+artist_page = 'http://ohhla.com/YFA_oddfuture.html'
 
+#make this into function
 page = urllib.request.urlopen(artist_page).read()
 soup = BeautifulSoup(page, 'html.parser')
 
@@ -58,10 +60,11 @@ def song_scrape(links, slept):
 
 
 #scraping is now all done, have to do intial clean
-def raw_clean(song_texts):
+def raw_clean(song_texts, scrape_artist):
 	song_data = {}
 	song_data[scrape_artist] = []
-	count = 0
+	count_raw = 0
+	count_clean = 0
 	for song in song_texts:
 		try:
 			#sometimes artist is written incorrectly dur
@@ -81,15 +84,17 @@ def raw_clean(song_texts):
 			words = re.sub("\n","--",words)
 
 			song_data[scrape_artist].append({'Title':title,'Album':album, 'Artist':artist, 'Lyrics':words})
+			count_clean += 1
 		except:
 			#again, want to use try excepts for indivdual artist
 			song_data[scrape_artist].append({'Raw':song})
-			count += 1
-	print(str(count)+" songs cleaned raw")
+			count_raw += 1
+	print(str(count_raw)+" songs cleaned raw")
+	print(str(count_clean)+" songs cleaned clean")
 	return song_data
-
-scraped_songs = raw_clean(song_scrape(song_links(soup), .1))
+#latency timing of .1
+scraped_songs = raw_clean(song_scrape(song_links(soup), .1), artist_to_scrape)
 
 #back up scrape after clean
-with open(scrape_artist+'_raw.json', 'w') as outfile:
+with open(artist_to_scrape+'_raw.json', 'w') as outfile:
     json.dump(scraped_songs, outfile)
