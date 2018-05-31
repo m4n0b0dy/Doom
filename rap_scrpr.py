@@ -84,14 +84,15 @@ def raw_clean(song_texts, scrape_artist):
 			typed = re.search(r"Typed by: (.*?)\n", song).group(0)
 			lyrics = song.split(typed,1)[1] 
 			#before we append lyrics, want to clean them slightly further
-			words = re.sub("([\(\[]).*?([\)\]])", "", lyrics)
-			words = re.sub("\n","--",words)
+			#this is actually hurting my analysis
+			#words = re.sub("([\(\[]).*?([\)\]])", "", lyrics)
+			#words = re.sub("\n","--",words)
 
 			if artist not in song_data:
 				song_data[artist] = {}
 			if album not in song_data[artist]:
 				song_data[artist][album] = {}
-			song_data[artist][album][title] = words
+			song_data[artist][album][title] = lyrics
 
 			count_clean += 1
 		except:

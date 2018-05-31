@@ -1,13 +1,13 @@
 import json
 import nltk
 import re
-#nltk.download()
 import psycopg2 as pg2
+
 #simple cleaning
-def clean_lyrics(full_text):
-    words = re.sub("([\(\[]).*?([\)\]])", "", full_text)
-    words = re.sub("\n","----",words)
-    return words
+#def clean_lyrics(full_text):
+#    words = re.sub("([\(\[]).*?([\)\]])", "", full_text)
+#    words = re.sub("\n","----",words)
+#    return words
 
 #thinking about adding a table like primary artist where it's the main guy
 
@@ -84,6 +84,7 @@ def basic_lyrc_pull(conn, art, alb=False, song=False):
     if not song and not alb:
         add = [('''SELECT song_name, song_lyrics FROM songs
         JOIN artists ON songs.artist_id = artists.artist_id
+        #could change this to like ('%Artist%') if you want to pull all containing artist name
         WHERE artists.artist_name = %(art)s''', {'art':art})]
     elif not song:
         add = [('''SELECT song_name, song_lyrics FROM songs
