@@ -24,11 +24,11 @@ def pull_links(page_link, app = '', sng_scr=False):
 	return ret_list
 
 #find links to an artist's song
-def song_links(page_link, alt=False, slept=.1):
+def song_links(page_link, slept=.1):
 	#it's written like this because you can access lyrics straight from artist page for some
 	#and others you must load each album - you can see which when opening page
 	song_list = []
-	if alt:
+	if '.html' not in page_link:
 		#third argument tells it to not just pull text files aka songs
 		links = pull_links(page_link, page_link, True)
 		for link in links:
