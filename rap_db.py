@@ -80,6 +80,7 @@ def add_base(conn, base_art_name):
 #so an issue here is when another artist that is featured with an artist that has already been loaded is loaded,
 #it tries to load that base ID but finds that there's two base artist names for that one artist name used inquery
 #to mitigate, I let whoever comes first be the base artist name, not an ideal fix but a fix
+#i think it might be better to do artist_name like '%artist%' for individual artists
 def add_songs(conn, base_art_name, art_name, art):
     art_add = '''INSERT INTO artists (artist_name, base_artist_id) VALUES (%(art)s,
                 (SELECT base_artist_id FROM base_artists WHERE base_artist_name = %(base_art)s))
