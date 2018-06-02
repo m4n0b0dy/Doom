@@ -1,5 +1,4 @@
 import json
-import nltk
 import re
 import psycopg2 as pg2
 
@@ -77,6 +76,7 @@ def add_base(conn, base_art_name):
     cur.execute(base_art_add[0], base_art_add[1])
     cur.close()
     conn.commit()
+
 #so an issue here is when another artist that is featured with an artist that has already been loaded is loaded,
 #it tries to load that base ID but finds that there's two base artist names for that one artist name used inquery
 #to mitigate, I let whoever comes first be the base artist name, not an ideal fix but a fix
@@ -115,9 +115,9 @@ def add_songs(conn, base_art_name, art_name, art):
 def basic_lyrc_pull(conn, art, alb=False, song=False):
     add = []
     if not song and not alb:
+    	#could change this to like ('%Artist%') if you want to pull all containing artist name
         add = [('''SELECT song_name, song_lyrics FROM songs
         JOIN artists ON songs.artist_id = artists.artist_id
-        #could change this to like ('%Artist%') if you want to pull all containing artist name
         WHERE artists.artist_name = %(art)s''', {'art':art})]
     elif not song:
         add = [('''SELECT song_name, song_lyrics FROM songs
@@ -126,12 +126,12 @@ def basic_lyrc_pull(conn, art, alb=False, song=False):
         WHERE artists.artist_name = %(art)s AND albums.album_name = %(alb)s''', {'art':art,'alb':alb})]
     else:
         for s in song:
-            query = '''SELECT song_name, song_lyrics FROM songs
+            query = ('''SELECT song_name, song_lyrics FROM songs
             JOIN artists ON songs.artist_id = artists.artist_id
             JOIN albums ON songs.album_id = albums.album_id
             WHERE artists.artist_name = %(art)s AND
             albums.album_name = %(alb)s AND
-            song_name = %(sng)s''', {'art':art,'alb':alb, 'sng':s}
+            song_name = %(sng)s''', {'art':art,'alb':alb, 'sng':s})
             add.append(query)
         
     cur = conn.cursor()
