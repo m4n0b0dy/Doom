@@ -1,5 +1,4 @@
 import json
-import re
 import psycopg2 as pg2
 
 #simple cleaning
