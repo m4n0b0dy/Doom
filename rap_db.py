@@ -1,25 +1,17 @@
 import json
 import psycopg2 as pg2
 
-#simple cleaning
-#def clean_lyrics(full_text):
-#    words = re.sub("([\(\[]).*?([\)\]])", "", full_text)
-#    words = re.sub("\n","----",words)
-#    return words
-
-#thinking about adding a table like primary artist where it's the main guy
-
 #create the tables - will over write
 def create_music_tables(conn, bypass = False):
     ans = 'y'
     if not bypass:
         ans = input('You sure you want to overwrite your tables? Type:"y"')
     if ans == 'y':
-        clean = '''DROP TABLE IF EXISTS base_artists, artists, albums, songs'''
+        clean = '''DROP TABLE IF EXISTS base_artists, artists, albums, songs;'''
         base_artists = '''CREATE TABLE base_artists 
         (base_artist_id SERIAL PRIMARY KEY,
         base_artist_name TEXT NOT NULL UNIQUE,
-        base_artist_backg TEXT)'''
+        base_artist_backg TEXT);'''
 
         artists = '''CREATE TABLE artists
         (artist_id SERIAL PRIMARY KEY,
@@ -27,7 +19,7 @@ def create_music_tables(conn, bypass = False):
         base_artist_id SERIAL
         REFERENCES base_artists (base_artist_id)
         ON UPDATE CASCADE ON DELETE CASCADE,
-        UNIQUE (artist_name, base_artist_id))'''
+        UNIQUE (artist_name, base_artist_id));'''
 
         albums = '''CREATE TABLE albums
         (album_id SERIAL PRIMARY KEY,
@@ -41,7 +33,7 @@ def create_music_tables(conn, bypass = False):
         album_sld SERIAL,
         album_rtng SERIAL,
         album_rev SERIAL,
-        UNIQUE (album_name, artist_id, base_artist_id))'''
+        UNIQUE (album_name, artist_id, base_artist_id));'''
 
         songs = '''CREATE TABLE songs
         (song_id SERIAL PRIMARY KEY,
@@ -58,7 +50,7 @@ def create_music_tables(conn, bypass = False):
         song_lyrics TEXT NOT NULL,
         song_wrd_len SERIAL,
         song_time_len SERIAL,
-        UNIQUE (song_name, album_id, artist_id, base_artist_id))'''
+        UNIQUE (song_name, album_id, artist_id, base_artist_id));'''
         #added unqiue stuff at the end because just uniquing song doesn't allow songs with the same name
         cur = conn.cursor()
         for command in [clean, base_artists, artists, albums, songs]:
@@ -70,7 +62,7 @@ def create_music_tables(conn, bypass = False):
 
 def add_base(conn, base_art_name):
     base_art_add = '''INSERT INTO base_artists (base_artist_name) VALUES (%(base_art)s)
-                    ON CONFLICT (base_artist_name) DO NOTHING''', {'base_art':base_art_name}
+                    ON CONFLICT (base_artist_name) DO NOTHING;''', {'base_art':base_art_name}
     cur = conn.cursor()
     cur.execute(base_art_add[0], base_art_add[1])
     cur.close()
@@ -83,7 +75,7 @@ def add_base(conn, base_art_name):
 def add_songs(conn, base_art_name, art_name, art):
     art_add = '''INSERT INTO artists (artist_name, base_artist_id) VALUES (%(art)s,
                 (SELECT base_artist_id FROM base_artists WHERE base_artist_name = %(base_art)s))
-                ON CONFLICT (artist_name) DO NOTHING''', {'base_art':base_art_name, 'art':art_name}
+                ON CONFLICT (artist_name) DO NOTHING;''', {'base_art':base_art_name, 'art':art_name}
     alb_add = []
     song_add = []
     for alb_name, alb in art.items():
@@ -91,7 +83,7 @@ def add_songs(conn, base_art_name, art_name, art):
                     (%(alb)s,
                     (SELECT base_artist_id FROM artists WHERE artist_name = %(art)s),
                     (SELECT artist_id FROM artists WHERE artist_name = %(art)s))
-                    ON CONFLICT (album_name, artist_id, base_artist_id) DO NOTHING''', {'art':art_name,'alb':alb_name}
+                    ON CONFLICT (album_name, artist_id, base_artist_id) DO NOTHING;''', {'art':art_name,'alb':alb_name}
         alb_add.append(add)
         for sng_name, sng in alb.items():
             add = '''WITH base_art_id AS (SELECT base_artist_id FROM artists WHERE artist_name = %(art)s),
@@ -103,7 +95,7 @@ def add_songs(conn, base_art_name, art_name, art):
                     (SELECT album_id FROM albums WHERE album_name = %(alb)s
                     and base_artist_id IN (SELECT base_artist_id FROM base_art_id)
                     and artist_id IN (SELECT artist_id FROM art_id)))
-                    ON CONFLICT (song_name, album_id, artist_id, base_artist_id) DO NOTHING''', {'art':art_name,'alb':alb_name, 'sng':sng_name, 'lyrcs':sng}
+                    ON CONFLICT (song_name, album_id, artist_id, base_artist_id) DO NOTHING;''', {'art':art_name,'alb':alb_name, 'sng':sng_name, 'lyrcs':sng}
             song_add.append(add)
     cur = conn.cursor()
     for command in [art_add] + alb_add + song_add:
@@ -122,7 +114,7 @@ def basic_lyrc_pull(conn, art, alb=False, song=False):
         add = [('''SELECT song_name, song_lyrics FROM songs
         JOIN artists ON songs.artist_id = artists.artist_id
         JOIN albums ON songs.album_id = albums.album_id
-        WHERE artists.artist_name = %(art)s AND albums.album_name = %(alb)s''', {'art':art,'alb':alb})]
+        WHERE artists.artist_name = %(art)s AND albums.album_name = %(alb)s;''', {'art':art,'alb':alb})]
     else:
         for s in song:
             query = ('''SELECT song_name, song_lyrics FROM songs
@@ -130,7 +122,7 @@ def basic_lyrc_pull(conn, art, alb=False, song=False):
             JOIN albums ON songs.album_id = albums.album_id
             WHERE artists.artist_name = %(art)s AND
             albums.album_name = %(alb)s AND
-            song_name = %(sng)s''', {'art':art,'alb':alb, 'sng':s})
+            song_name = %(sng)s;''', {'art':art,'alb':alb, 'sng':s})
             add.append(query)
         
     cur = conn.cursor()
