@@ -138,16 +138,33 @@ def percise_pull(conn, art, alb=False, song=False):
         ret_dic[qu[0]] = qu[1]
     return ret_dic
 
+def update_art_dic(art_dic, query, base_artist):
+    artist_name_q = query['artist_name']
+    album_name_q = query['album_name']
+    song_name_q = query['song_name']
+    song_lyrics_q = query['song_lyrics']
+
+    if artist_name_q in art_dic.keys():
+        albs = art_dic[artist_name_q]
+        if album_name_q in albs.keys():
+            albs[album_name_q][song_name_q] = song_lyrics_q
+        else:
+            albs[album_name_q] = {song_name_q:song_lyrics_q}
+        art_dic[artist_name_q].update(albs)
+    else:
+        art_dic[artist_name_q] = {album_name_q:{song_name_q:song_lyrics_q}}
+    return art_dic
+
 #this one is easier/more general but slower than first
+#i map using the db artist name
 def adv_pull(conn, artist_list = [''], album_list = [''], song_list = ['']):
-    cur = conn.cursor()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     queries = {}
     for art in artist_list:
-        queries[art] = {}
+        art_queries = {}
         for alb in album_list:
-            alb_songs = {}
             for sng in song_list:
-                song_pull = '''SELECT song_name, song_lyrics FROM songs
+                song_pull = '''SELECT artist_name, album_name, song_name, song_lyrics FROM songs
                         JOIN artists ON artists.artist_id = songs.artist_id
                         JOIN albums ON albums.album_id = songs.album_id
                         WHERE artist_name LIKE '%'''+art+'''%' AND
@@ -155,14 +172,9 @@ def adv_pull(conn, artist_list = [''], album_list = [''], song_list = ['']):
                         song_name LIKE '%'''+sng+'''%';'''
                 cur.execute(song_pull)
                 query = cur.fetchall()
-                #check if empty
-                if not query:
-                    continue
                 for q in query:
-                    alb_songs[q[0]] = q[1]
-            if not alb_songs:
-                continue
-            queries[art][alb] = alb_songs
+                    art_queries = update_art_dic(art_queries, q, art)
+        queries[art] = art_queries
     return queries
 
 def pull_link(conn, artist_name):
