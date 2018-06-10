@@ -1,3 +1,4 @@
+#import RAP_MASTER_LIB
 import json
 import re
 from bs4 import BeautifulSoup
@@ -102,3 +103,7 @@ def raw_clean(song_texts, scrape_artist):
 	print(str(count_raw)+" songs cleaned raw")
 	print(str(count_clean)+" songs cleaned clean")
 	return song_data
+
+#do this for aesthetics
+def full_artist_scrape(web_link, cur_artist):
+	return raw_clean(song_scrape(song_links(web_link)), cur_artist)

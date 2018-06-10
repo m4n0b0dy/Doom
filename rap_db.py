@@ -1,5 +1,7 @@
+#import RAP_MASTER_LIB
 import json
 import psycopg2 as pg2
+import psycopg2.extras
 
 #create the tables - will over write
 def create_music_tables(conn, bypass = False):
@@ -103,10 +105,10 @@ def add_songs(conn, base_art_name, art_name, art):
     cur.close()
     conn.commit()
 
-def basic_lyrc_pull(conn, art, alb=False, song=False):
+#this one is faster, only do one at a time
+def percise_pull(conn, art, alb=False, song=False):
     add = []
     if not song and not alb:
-    	#could change this to like ('%Artist%') if you want to pull all containing artist name
         add = [('''SELECT song_name, song_lyrics FROM songs
         JOIN artists ON songs.artist_id = artists.artist_id
         WHERE artists.artist_name = %(art)s''', {'art':art})]
@@ -135,3 +137,35 @@ def basic_lyrc_pull(conn, art, alb=False, song=False):
     for qu in quer:
         ret_dic[qu[0]] = qu[1]
     return ret_dic
+
+#this one is easier/more general but slower than first
+def adv_pull(conn, artist_list = [''], album_list = [''], song_list = ['']):
+    cur = conn.cursor()
+    queries = {}
+    for art in artist_list:
+        queries[art] = {}
+        for alb in album_list:
+            alb_songs = {}
+            for sng in song_list:
+                song_pull = '''SELECT song_name, song_lyrics FROM songs
+                        JOIN artists ON artists.artist_id = songs.artist_id
+                        JOIN albums ON albums.album_id = songs.album_id
+                        WHERE artist_name LIKE '%'''+art+'''%' AND
+                        album_name LIKE '%'''+alb+'''%' AND
+                        song_name LIKE '%'''+sng+'''%';'''
+                cur.execute(song_pull)
+                query = cur.fetchall()
+                #check if empty
+                if not query:
+                    continue
+                for q in query:
+                    alb_songs[q[0]] = q[1]
+            if not alb_songs:
+                continue
+            queries[art][alb] = alb_songs
+    return queries
+
+def pull_link(conn, artist_name):
+    cur = conn.cursor()
+    cur.execute('''SELECT artist_link from all_artist_names WHERE artist_nm = %(art)s''', {'art':artist_name})
+    return 'http://ohhla.com/'+cur.fetchone()[0]
