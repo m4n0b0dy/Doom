@@ -4,7 +4,7 @@ import re
 from bs4 import BeautifulSoup
 import urllib
 import time
-
+from rap_db import *
 #can make this fully automated with the a little more parsing!
 #also fix the error that prints couldnt load
 
@@ -104,6 +104,16 @@ def raw_clean(song_texts, scrape_artist):
 	print(str(count_clean)+" songs cleaned clean")
 	return song_data
 
-#do this for aesthetics
-def full_artist_scrape(web_link, cur_artist):
-	return raw_clean(song_scrape(song_links(web_link)), cur_artist)
+#scrape artist from list
+def scrape_multi_artists(conn, artist_list):
+    ret_list = []
+    for art in artist_list:
+        page = pull_link(conn, art)
+        scraped_songs = raw_clean(song_scrape(song_links(page)), art)
+        art_file = art.replace(' ', '_').lower()
+        #back up scrape after clean
+        with open('json_lyrics/'+art_file+'_raw.json', 'w') as outfile:
+            json.dump(scraped_songs, outfile)
+        print(art_file+'_raw.json made!')
+        ret_list.append(art_file+'_raw.json')
+    return ret_list

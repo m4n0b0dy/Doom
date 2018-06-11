@@ -181,3 +181,16 @@ def pull_link(conn, artist_name):
     cur = conn.cursor()
     cur.execute('''SELECT artist_link from all_artist_names WHERE artist_nm = %(art)s''', {'art':artist_name})
     return 'http://ohhla.com/'+cur.fetchone()[0]
+
+#function to load everything into db quickly
+def bulk_load(conn, new_eds = []):
+    if not new_eds:
+        new_eds = [f for f in listdir('json_lyrics/') if isfile(join('json_lyrics/', f))]
+    for new in new_eds:
+        songs = json.load(open('json_lyrics/'+new))
+        art_name = new.replace("_raw.json","")
+        add_base(conn, art_name)
+        for name, works in songs.items():
+            if 'raw_song_' not in name:
+                add_songs(conn, art_name, name, works)
+        print(new+" added!")
