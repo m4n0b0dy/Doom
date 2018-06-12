@@ -21,7 +21,9 @@ def pull_links(page_link, app = '', sng_scr=False):
 			    title = lines[1][:-4]
 			    ret_list.append(app + link)
 	except:
-		print("Couldn't load", page_link)
+		#dont need notification of this
+		if "//anonymous" not in page_link:
+			print("Couldn't load", page_link)
 	return ret_list
 
 #find links to an artist's song

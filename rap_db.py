@@ -138,8 +138,13 @@ def percise_pull(conn, art, alb=False, song=False):
         ret_dic[qu[0]] = qu[1]
     return ret_dic
 
-def update_art_dic(art_dic, query, base_artist):
-    artist_name_q = query['artist_name']
+def update_art_dic(art_dic, query, base_artist, use_ind_artists):
+    #determinse if we group by main artist or ind artists
+    if use_ind_artists:
+        artist_name_q = query['artist_name']
+    else:
+        artist_name_q = base_artist
+
     album_name_q = query['album_name']
     song_name_q = query['song_name']
     song_lyrics_q = query['song_lyrics']
@@ -157,7 +162,7 @@ def update_art_dic(art_dic, query, base_artist):
 
 #this one is easier/more general but slower than first
 #i map using the db artist name
-def adv_pull(conn, artist_list = [''], album_list = [''], song_list = ['']):
+def adv_pull(conn, artist_list = [''], album_list = [''], song_list = [''], use_ind_artists=False):
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     queries = {}
     for art in artist_list:
@@ -167,13 +172,13 @@ def adv_pull(conn, artist_list = [''], album_list = [''], song_list = ['']):
                 song_pull = '''SELECT artist_name, album_name, song_name, song_lyrics FROM songs
                         JOIN artists ON artists.artist_id = songs.artist_id
                         JOIN albums ON albums.album_id = songs.album_id
-                        WHERE artist_name LIKE '%'''+art+'''%' AND
-                        album_name LIKE '%'''+alb+'''%' AND
-                        song_name LIKE '%'''+sng+'''%';'''
+                        WHERE lower(artist_name) LIKE '%'''+art.lower()+'''%' AND
+                        lower(album_name) LIKE '%'''+alb.lower()+'''%' AND
+                        lower(song_name) LIKE '%'''+sng.lower()+'''%';'''
                 cur.execute(song_pull)
                 query = cur.fetchall()
                 for q in query:
-                    art_queries = update_art_dic(art_queries, q, art)
+                    art_queries = update_art_dic(art_queries, q, art, use_ind_artists)
         queries[art] = art_queries
     return queries
 

@@ -185,3 +185,32 @@ class artist():
         for alb in albums:
             self.songs = self.songs + alb.songs
             self.verses = self.verses + alb.verses
+            
+#finally a function to build all this stuff
+def construct_albums(albs_dic, artist_nm):
+    albums = []
+    for alb_name, sngs in albs_dic.items():
+        song_objs = []
+        for sng_name, lyrc in sngs.items():
+            song_obj = song(lyrc, sng_name, artist_nm)
+            song_obj.assign_extras()
+            song_obj.remove_and_reass(['?', '*text'])
+            song_obj.create_song_as_seg()
+            song_objs.append(song_obj)
+        album_obj = album(artist_nm, alb_name, song_objs)
+        #extra verse cleaning
+        for v in album_obj.verses:
+            v.run_all_split()
+        albums.append(album_obj)
+    return albums
+
+def construct_artists(conn, art_list = [''], alb_list = [''], sng_list = [''], use_ind_artists=False):
+    record_pull = adv_pull(conn, art_list, alb_list, sng_list, use_ind_artists)
+    artist_works = []
+    for main_artist, db_records in record_pull.items():
+        if use_ind_artists:
+            for ind_art, ind_albs in db_records.items():
+                artist_works.append(artist(ind_art, construct_albums(ind_albs, ind_art)))
+        else:
+            artist_works.append(artist(main_artist, construct_albums(db_records[main_artist], main_artist)))
+    return artist_works
