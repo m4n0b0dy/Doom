@@ -48,7 +48,7 @@ class verse(text_segment):
         words = re.sub('[\n\.,\t!]', ' ', self.content)
         words = words.split(' ')
         self.all_words = list(filter(None, words))
-        self.unique_words = set(words)
+        self.unique_words = set(self.all_words)
     
     def split_on_line(self):
         self.all_lines = list(filter(None, self.content.split('\n')))
@@ -76,7 +76,9 @@ class song():
                       '\n':'\n',
                       '{**}':'\{\*(.*?)\*\}',
                       '()':'\((?!.*chorus.*|.*verse.*|.*bridge.*).*\)',
-                      '""':'"(.*?)"',
+                      #made change here, more effect than thought
+                      '""':'"[^"]*',
+                      #'""':'"(.*?)"',
                       '?':'\?+',
                       '*text':'[\n| ]\*[^\n|\{|\(|\[]*'}
     
@@ -194,7 +196,8 @@ def construct_albums(albs_dic, artist_nm):
         for sng_name, lyrc in sngs.items():
             song_obj = song(lyrc, sng_name, artist_nm)
             song_obj.assign_extras()
-            song_obj.remove_and_reass(['?', '*text'])
+            #MAJOR CHANGE HERE REVERT BACK IF YOU WANT THESE
+            song_obj.remove_and_reass(['?', '*text', '()','{}','{**}'])
             song_obj.create_song_as_seg()
             song_objs.append(song_obj)
         album_obj = album(artist_nm, alb_name, song_objs)
@@ -212,5 +215,6 @@ def construct_artists(conn, art_list = [''], alb_list = [''], sng_list = [''], u
             for ind_art, ind_albs in db_records.items():
                 artist_works.append(artist(ind_art, construct_albums(ind_albs, ind_art)))
         else:
+            #key error means it didn't find anything for that artist
             artist_works.append(artist(main_artist, construct_albums(db_records[main_artist], main_artist)))
     return artist_works
