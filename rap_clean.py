@@ -45,7 +45,7 @@ class text_segment():
 
 class verse(text_segment):
     def split_on_word(self):
-        words = re.sub('[\n\.,\t!]', ' ', self.content)
+        words = re.sub('[^0-9a-zA-Z]+', ' ', self.content)
         words = words.split(' ')
         self.all_words = list(filter(None, words))
         self.unique_words = set(self.all_words)
@@ -70,15 +70,14 @@ class song():
     regex_commands = {'intro':'\[.*intro.*\]',
                       'outro':'\[.*outro.*\]',
                       'chorus':'(\[.*chorus.*\]|\(.*chorus.*\))',
-                      'verse':'(\[.*verse.*|.*bridge.*\]|\(.*verse.*|.*bridge.*\))',                   
-                      '[]':'\[(?!.*intro.*|.*outro.*|.*chorus.*|.*verse.*|.*bridge.*).*\]',
+                      'verse':'(\[.*verse.*|.*bridge.*\]|\(.*verse.*|.*bridge.*\))',
+                      '[]':'\[(?!\[.*intro.*\]|\[.*outro.*\]|\[.*chorus.*\]|\[.*verse.*\]|\[.*bridge.*\]).*\]',
                       '{}':'\{(.*?)\}',
                       '\n':'\n',
                       '{**}':'\{\*(.*?)\*\}',
                       '()':'\((?!.*chorus.*|.*verse.*|.*bridge.*).*\)',
-                      #made change here, more effect than thought
                       '""':'"[^"]*',
-                      #'""':'"(.*?)"',
+                      '""':'\*[^\*]*',
                       '?':'\?+',
                       '*text':'[\n| ]\*[^\n|\{|\(|\[]*'}
     
@@ -119,11 +118,12 @@ class song():
         self.extra_segs = sorted(list(extra_segs), key=lambda x: x[1][0])
         
     #this removes any of the regex formations utilized above and recalculates all the new positions
-    def remove_and_reass(self, rem = []):
-        for r in rem:
-            if r in song.regex_commands.keys():
-                self.raw_text = re.sub(song.regex_commands[r], '', self.raw_text)
-        self.assign_extras()
+    def remove_and_reass(self, rems = []):
+        for rem in rems:
+            matches = self.extras[rem]
+            for match in matches:
+                self.raw_text = re.sub(re.escape(match[0]), '', self.raw_text.lower())
+            self.assign_extras()
     
     #using our ordered list of regex matches from before, create a song out of the segments it's comprised of
     def create_song_as_seg(self):
@@ -196,8 +196,7 @@ def construct_albums(albs_dic, artist_nm):
         for sng_name, lyrc in sngs.items():
             song_obj = song(lyrc, sng_name, artist_nm)
             song_obj.assign_extras()
-            #MAJOR CHANGE HERE REVERT BACK IF YOU WANT THESE
-            song_obj.remove_and_reass(['?', '*text', '()','{}','{**}'])
+            song_obj.remove_and_reass(['[]', '?', '*text'])
             song_obj.create_song_as_seg()
             song_objs.append(song_obj)
         album_obj = album(artist_nm, alb_name, song_objs)
