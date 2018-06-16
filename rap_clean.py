@@ -45,7 +45,7 @@ class text_segment():
 
 class verse(text_segment):
     def split_on_word(self):
-        words = re.sub('[^0-9a-zA-Z]+', ' ', self.content)
+        words = re.sub('[^0-9a-zA-Z\'\-]+', ' ', self.content)
         words = words.split(' ')
         self.all_words = list(filter(None, words))
         self.unique_words = set(self.all_words)
@@ -196,7 +196,7 @@ def construct_albums(albs_dic, artist_nm):
         for sng_name, lyrc in sngs.items():
             song_obj = song(lyrc, sng_name, artist_nm)
             song_obj.assign_extras()
-            song_obj.remove_and_reass(['[]', '?', '*text'])
+            song_obj.remove_and_reass(['[]', '?', '*text', '{**}'])
             song_obj.create_song_as_seg()
             song_objs.append(song_obj)
         album_obj = album(artist_nm, alb_name, song_objs)
