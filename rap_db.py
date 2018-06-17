@@ -2,6 +2,9 @@
 import json
 import psycopg2 as pg2
 import psycopg2.extras
+import pickle as pic
+from os import listdir
+from os.path import isfile, join
 
 #create the tables - will over write
 #add to database meta stats when you have em
@@ -191,7 +194,7 @@ def pull_link(conn, artist_name):
 #function to load everything into db quickly
 def bulk_load(conn, new_eds = []):
     if not new_eds:
-        new_eds = [f for f in listdir('json_lyrics/') if isfile(join('json_lyrics/', f))]
+        new_eds = [f for f in listdir('json_lyrics/') if path.isfile(join('json_lyrics/', f))]
     for new in new_eds:
         songs = json.load(open('json_lyrics/'+new))
         art_name = new.replace("_raw.json","")
@@ -200,3 +203,19 @@ def bulk_load(conn, new_eds = []):
             if 'raw_song_' not in name:
                 add_songs(conn, art_name, name, works)
         print(new+" added!")
+
+#two quick and easy functions for loading my artist files
+#also helps that I won't need the DB everywhere
+def art_save(arts):
+	for nm, aobj in arts.items():
+		with open('art_objs/%s.pkl'%nm, 'wb') as output:
+			pic.dump(aobj, output, pic.HIGHEST_PROTOCOL)
+
+def art_load(nms = []):
+	ret_dic = {}
+	if not nms:
+		nms = [f for f in listdir('art_objs/') if isfile(join('art_objs/', f))]
+	for nm in nms:
+		with open('art_objs/%s.pkl'%nm, 'rb') as incoming:
+			ret_dic[nm] = pic.load(incoming)
+	return ret_dic

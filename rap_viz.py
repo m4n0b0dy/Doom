@@ -6,20 +6,38 @@ import re
 import plotly.offline as offline
 import plotly.figure_factory as ff
 import plotly.graph_objs as go
+#need this to check against repeat verses
+from difflib import SequenceMatcher
 RND = 3
 
+#checks to make sure the label has artist name or is verse (don't want features necessarily)
+#NOT WORKING RIGHT NOW
+def art_ch(ar, _lb, ver_cont, prev_verses, ratio_check=.7):
+	lb = _lb.lower()
+	#first check that verse is by artist or general
+	art_ch = (ar.lower() in lb or re.match('[^a-z0-9](verse|bridge)[^a-z0-9]', lb))
+	#then make sure verse is unique
+	if art_ch:
+		for prev_ver in prev_verses:
+			if SequenceMatcher(None, prev_ver, ver_cont).ratio() > ratio_check:
+				return False
+		return True
+	return False
+
 def gen_plot(typ, traces, arts, b):
-    fig = ff.create_distplot(traces, arts, bin_size=b)
+    fig = ff.create_distplot(traces, arts, bin_size=b, rug_text=traces, show_curve=True)
     layout = go.Layout(title='Unique Word Ratios by '+typ)
     fig['layout'].update(layout)
     offline.iplot(fig)
     
-def unique_words_hist(artist_obj_list, all_feat_artist=True, song_or_verse='verse', b=.01):
+def unique_words_hist(artist_obj_list, all_feat_artist=False, song_or_verse='verse', b=.01):
     verse_traces = []
     song_traces = []
     art_order = []
     offline.init_notebook_mode(connected=True)
     for art in artist_obj_list:
+    	#needed to add this because I was finding repeat verses
+        prev_vrs_con = set()
         art_order.append(art.name)
         #by verse
         uniq_vs = []
@@ -29,8 +47,9 @@ def unique_words_hist(artist_obj_list, all_feat_artist=True, song_or_verse='vers
             one_song_uniqs = set()
             one_song_all = []
             for seg in sng.segments:
-                lab = seg.label.lower()
-                if type(seg) == verse and (all_feat_artist or art.name.lower() in lab or re.match('[^a-z0-9](verse|bridge)[^a-z0-9]', lab)): 
+                #uses function to check if it's our artist or verse
+                if type(seg) == verse and (all_feat_artist or art_ch(art.name, seg.label, seg.content, prev_vrs_con)):
+                    prev_vrs_con = prev_vrs_con|set(seg.content)
                     #add this individual verse ratio
                     uniq_vs.append(len(seg.unique_words)/len(seg.all_words))
                     #add unique words in verses by artist
@@ -52,18 +71,19 @@ def unique_words_hist(artist_obj_list, all_feat_artist=True, song_or_verse='vers
         gen_plot('Song', song_traces, art_order, b)
 
 #my favorite funciton of all time tbh
-def unique_verses_bar(artist_obj_list, all_feat_artist=True, verse_count = 10):
+def unique_verses_bar(artist_obj_list, all_feat_artist=False, verse_count = 10):
     #go through all artists, make a trace, plot them all
     #also works for ind artist
     traces = []
     offline.init_notebook_mode(connected=True)
     for art in artist_obj_list:
+        prev_vrs_con = set()
         all_verses = []
         for v in art.verses:
-            lab = v.label.lower()
-            if all_feat_artist or art.name.lower() in lab or re.match('[^a-z0-9](verse|bridge)[^a-z0-9]', lab):
-                all_verses.append((len(v.unique_words)/len(v.all_words), v.content, len(v.all_words)))
-                
+            if all_feat_artist or art_ch(art.name, v.label, v.content, prev_vrs_con):
+                prev_vrs_con = prev_vrs_con|set(v.content)
+                all_verses.append((len(v.unique_words)/len(v.all_words), v.content, len(v.all_words)))  
+
         all_verses = sorted(all_verses, reverse=True)[:verse_count]
         ys = []
         xs = []
