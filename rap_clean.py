@@ -8,7 +8,7 @@ from nltk.stem import *
 estconn = pg2.connect(database='rap_songs', user='keenan', host='localhost', password='keenan')
 
 cur = estconn.cursor()
-cur.execute('''SELECT lower(artist_nm) FROM all_artist_names UNION SELECT LOWER(artist_name) FROM artists;''')
+cur.execute('''SELECT LOWER(artist_nm) FROM all_artist_names UNION SELECT LOWER(artist_name) FROM artists;''')
 query = cur.fetchall()
 COMPLETE_RAPPERS = set()
 #want all rappers listed and any rapper in list of rappers
@@ -45,7 +45,7 @@ class text_segment():
 
 class verse(text_segment):
     def split_on_word(self):
-        words = re.sub('[^0-9a-zA-Z\'\-]+', ' ', self.content)
+        words = re.sub('[^0-9a-zA-Z\'\-]+', ' ', self.content).lower()
         words = words.split(' ')
         self.all_words = list(filter(None, words))
         self.unique_words = set(self.all_words)
@@ -95,12 +95,12 @@ class song():
         for ext, regex_command in song.regex_commands.items():
             finder = re.compile(regex_command)
             match_list = []
-            for match in finder.finditer(self.raw_text.lower()):
+            for match in finder.finditer(self.raw_text):#taking away lower
                 #match item has a start position and a label
                 #seg_type here is used as an edge case when later adding in verses matched via artist name
                 seg_type = ext
                 #specialized check if an artist is saying lyric and immideitely add to verse list
-                if match.group()[1:-1] in COMPLETE_RAPPERS:
+                if match.group().lower()[1:-1] in COMPLETE_RAPPERS:#added lower here
                     seg_type = 'verse'
                     self.extras[seg_type].append((match.group(), (match.start(), match.start()+len(match.group()))))
                 #if it doesn't mention an artist we just include it in the match list for now
@@ -122,7 +122,7 @@ class song():
         for rem in rems:
             matches = self.extras[rem]
             for match in matches:
-                self.raw_text = re.sub(re.escape(match[0]), '', self.raw_text.lower())
+                self.raw_text = re.sub(re.escape(match[0]), '', self.raw_text)#taking away lower
             self.assign_extras()
     
     #using our ordered list of regex matches from before, create a song out of the segments it's comprised of
