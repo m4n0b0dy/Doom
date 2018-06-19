@@ -11,6 +11,7 @@ from difflib import SequenceMatcher
 RND = 3
 
 #checks to make sure the label has artist name or is verse (don't want features necessarily)
+#made this over when creating the artist class object - will save a lot of run time and headach,e just have to update here
 def art_ch(ar, _lb, ver_cont, prev_verses, ratio_check=.5):
     lb = _lb.lower()
     #first check that verse is by artist or general
@@ -36,7 +37,6 @@ def unique_words_hist(artist_obj_list, all_feat_artist=False, song_or_verse='ver
     offline.init_notebook_mode(connected=True)
     for art in artist_obj_list:
     	#needed to add this because I was finding repeat verses
-        prev_vrs_con = set()
         art_order.append(art.name)
         #by verse
         uniq_vs = []
@@ -46,9 +46,9 @@ def unique_words_hist(artist_obj_list, all_feat_artist=False, song_or_verse='ver
             one_song_uniqs = set()
             one_song_all = []
             for seg in sng.segments:
+                #NEED TO TEST THIS AND THE OTHER ONE
                 #uses function to check if it's our artist or verse
-                if type(seg) == verse and (all_feat_artist or art_ch(art.name, seg.label, seg.content, prev_vrs_con)):
-                    prev_vrs_con = prev_vrs_con|{seg.content}
+                if type(seg) == verse and (all_feat_artist or seg in art.uniq_art_verses):
                     #add this individual verse ratio
                     uniq_vs.append(len(seg.unique_words)/len(seg.all_words))
                     #add unique words in verses by artist
@@ -76,12 +76,14 @@ def unique_verses_bar(artist_obj_list, all_feat_artist=False, verse_count = 10):
     traces = []
     offline.init_notebook_mode(connected=True)
     for art in artist_obj_list:
-        prev_vrs_con = set()
         all_verses = []
-        for v in art.verses:
-            if all_feat_artist or art_ch(art.name, v.label, v.content, prev_vrs_con):
-                prev_vrs_con = prev_vrs_con|{v.content}
-                all_verses.append((len(v.unique_words)/len(v.all_words), v.content, len(v.all_words)))  
+        ver_iter = []
+        if all_feat_artist:
+            ver_iter = art.verses
+        else:
+            ver_iter = art.uniq_art_verses
+        for v in ver_iter:
+            all_verses.append((len(v.unique_words)/len(v.all_words), v.content, len(v.all_words)))  
 
         all_verses = sorted(all_verses, reverse=True)[:verse_count]
         ys = []

@@ -5,6 +5,7 @@ import psycopg2 as pg2
 import psycopg2.extras
 from nltk.corpus import stopwords
 from nltk.stem import *
+from difflib import SequenceMatcher
 
     #try to load our complete rappers fresh from db, but if it's not there just take the most recent picle file
 try:
@@ -39,6 +40,23 @@ def check_verse(text, nec_len = 20, nec_uniq = 12):
     if len(unique_words) < nec_uniq:
         return False
     return True
+
+#this specialized function pulls out verses that are by specific artist (not features) and don't match any other verse to 50%
+def find_uniq_art_vers(ar, all_ver_lst, ratio_check=.5):
+	all_vers = set(all_ver_lst)
+	ret_vers = set()
+	for vers in all_vers:
+		lb = vers.label.lower()
+		#first check that verse is by artist or general
+		art_ch = (ar.lower() in lb or re.match('[^a-z0-9](verse|bridge)[^a-z0-9]', lb))
+		#then make sure verse is unique
+		new_ch = True
+		for prev_ver in all_vers - {vers}:
+			if SequenceMatcher(None, prev_ver.content, vers.content).ratio() > ratio_check:
+				new_ch = False
+		if art_ch and new_ch:
+			ret_vers = ret_vers|{vers}
+	return list(ret_vers) 
 
 class text_segment():
     def __init__(self, typ, label, start, end):
@@ -167,6 +185,7 @@ class song():
                 else:
                     seg.typ = 'chorus'
             self.segments.append(seg)
+        self.verses = list(filter(lambda s: isinstance(s, verse), self.segments))
 
 def flatten_to_segs(song_list):
     ret_list = []
@@ -193,6 +212,8 @@ class artist():
         for alb in albums:
             self.songs = self.songs + alb.songs
             self.verses = self.verses + alb.verses
+        #here we should make another attribute like unique verses, feed in verses and get back uniques verses
+        self.uniq_art_verses = find_uniq_art_vers(self.name, self.verses)
             
 #finally a function to build all this stuff
 def construct_albums(albs_dic, artist_nm):
