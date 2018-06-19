@@ -211,10 +211,10 @@ def art_save(arts):
 		with open('art_objs/%s.pkl'%nm, 'wb') as output:
 			pic.dump(aobj, output, pic.HIGHEST_PROTOCOL)
 
-def art_load(nms = []):
+def art_load(nms = set()):
 	ret_dic = {}
 	if not nms:
-		nms = [f for f in listdir('art_objs/') if isfile(join('art_objs/', f))]
+		nms = set([f[:-4] for f in listdir('art_objs/') if isfile(join('art_objs/', f))])-{'COMPLETE_RAPPERS'}
 	for nm in nms:
 		with open('art_objs/%s.pkl'%nm, 'rb') as incoming:
 			ret_dic[nm] = pic.load(incoming)

@@ -7,7 +7,7 @@ from nltk.corpus import stopwords
 from nltk.stem import *
 from difflib import SequenceMatcher
 
-    #try to load our complete rappers fresh from db, but if it's not there just take the most recent picle file
+ #try to load our complete rappers fresh from db, but if it's not there just take the most recent picle file
 try:
     estconn = pg2.connect(database='rap_songs', user='keenan', host='localhost', password='keenan')
     cur = estconn.cursor()
@@ -52,6 +52,7 @@ def find_uniq_art_vers(ar, all_ver_lst, ratio_check=.5):
 		#then make sure verse is unique
 		new_ch = True
 		for prev_ver in all_vers - {vers}:
+            #there is an "issue" that the repeated verses will never be added, however, repeated verses are usually really choruses so it kinda works
 			if SequenceMatcher(None, prev_ver.content, vers.content).ratio() > ratio_check:
 				new_ch = False
 		if art_ch and new_ch:
