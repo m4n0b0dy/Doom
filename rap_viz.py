@@ -11,18 +11,17 @@ from difflib import SequenceMatcher
 RND = 3
 
 #checks to make sure the label has artist name or is verse (don't want features necessarily)
-#NOT WORKING RIGHT NOW
-def art_ch(ar, _lb, ver_cont, prev_verses, ratio_check=.7):
-	lb = _lb.lower()
-	#first check that verse is by artist or general
-	art_ch = (ar.lower() in lb or re.match('[^a-z0-9](verse|bridge)[^a-z0-9]', lb))
-	#then make sure verse is unique
-	if art_ch:
-		for prev_ver in prev_verses:
-			if SequenceMatcher(None, prev_ver, ver_cont).ratio() > ratio_check:
-				return False
-		return True
-	return False
+def art_ch(ar, _lb, ver_cont, prev_verses, ratio_check=.5):
+    lb = _lb.lower()
+    #first check that verse is by artist or general
+    art_ch = (ar.lower() in lb or re.match('[^a-z0-9](verse|bridge)[^a-z0-9]', lb))
+    #then make sure verse is unique
+    if art_ch:
+        for prev_ver in prev_verses:
+            if SequenceMatcher(None, prev_ver, ver_cont).ratio() > ratio_check:
+                return False
+        return True
+    return False
 
 def gen_plot(typ, traces, arts, b):
     fig = ff.create_distplot(traces, arts, bin_size=b, rug_text=traces, show_curve=True)
@@ -49,7 +48,7 @@ def unique_words_hist(artist_obj_list, all_feat_artist=False, song_or_verse='ver
             for seg in sng.segments:
                 #uses function to check if it's our artist or verse
                 if type(seg) == verse and (all_feat_artist or art_ch(art.name, seg.label, seg.content, prev_vrs_con)):
-                    prev_vrs_con = prev_vrs_con|set(seg.content)
+                    prev_vrs_con = prev_vrs_con|{seg.content}
                     #add this individual verse ratio
                     uniq_vs.append(len(seg.unique_words)/len(seg.all_words))
                     #add unique words in verses by artist
@@ -81,7 +80,7 @@ def unique_verses_bar(artist_obj_list, all_feat_artist=False, verse_count = 10):
         all_verses = []
         for v in art.verses:
             if all_feat_artist or art_ch(art.name, v.label, v.content, prev_vrs_con):
-                prev_vrs_con = prev_vrs_con|set(v.content)
+                prev_vrs_con = prev_vrs_con|{v.content}
                 all_verses.append((len(v.unique_words)/len(v.all_words), v.content, len(v.all_words)))  
 
         all_verses = sorted(all_verses, reverse=True)[:verse_count]

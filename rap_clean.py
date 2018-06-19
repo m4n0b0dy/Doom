@@ -5,22 +5,28 @@ import psycopg2 as pg2
 import psycopg2.extras
 from nltk.corpus import stopwords
 from nltk.stem import *
-estconn = pg2.connect(database='rap_songs', user='keenan', host='localhost', password='keenan')
 
-cur = estconn.cursor()
-cur.execute('''SELECT LOWER(artist_nm) FROM all_artist_names UNION SELECT LOWER(artist_name) FROM artists;''')
-query = cur.fetchall()
-COMPLETE_RAPPERS = set()
-#want all rappers listed and any rapper in list of rappers
-for art in query:
-    full_name = art[0]
-    sep_name = re.sub('f./|f/|w/|&amp;|and|((^|\W)\()|(\)($|\W))', ',', full_name)
-    list_of_names = sep_name.split(',')
-    for name in list_of_names:
-        COMPLETE_RAPPERS = COMPLETE_RAPPERS|{name.strip()}
-COMPLETE_RAPPERS = COMPLETE_RAPPERS - {''}
-cur.close()
-estconn.close()
+    #try to load our complete rappers fresh from db, but if it's not there just take the most recent picle file
+try:
+    estconn = pg2.connect(database='rap_songs', user='keenan', host='localhost', password='keenan')
+    cur = estconn.cursor()
+    cur.execute('''SELECT LOWER(artist_nm) FROM all_artist_names UNION SELECT LOWER(artist_name) FROM artists;''')
+    query = cur.fetchall()
+    COMPLETE_RAPPERS = set()
+    #want all rappers listed and any rapper in list of rappers
+    for art in query:
+        full_name = art[0]
+        sep_name = re.sub('f./|f/|w/|&amp;|and|((^|\W)\()|(\)($|\W))', ',', full_name)
+        list_of_names = sep_name.split(',')
+        for name in list_of_names:
+            COMPLETE_RAPPERS = COMPLETE_RAPPERS|{name.strip()}
+    COMPLETE_RAPPERS = COMPLETE_RAPPERS - {''}
+    cur.close()
+    estconn.close()
+    #repurposing my save and load functions
+    art_save({'COMPLETE_RAPPERS':COMPLETE_RAPPERS})
+except:
+    COMPLETE_RAPPERS = art_load(nms=['COMPLETE_RAPPERS'])['COMPLETE_RAPPERS']
 
 #quick way to check if it's a true verse
 def check_verse(text, nec_len = 20, nec_uniq = 12):
