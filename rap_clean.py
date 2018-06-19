@@ -109,7 +109,7 @@ class song():
     def __init__(self, raw_text, name, artist):
         self.raw_text = re.sub('&amp;', 'and', raw_text)
         self.name = name
-        self.artist = art
+        self.artist = artist
     
     #go through regex and compile dict and set of locaitons of each pattern match
     def assign_extras(self):
@@ -187,13 +187,15 @@ class song():
                     seg.typ = 'chorus'
             self.segments.append(seg)
         self.verses = list(filter(lambda s: isinstance(s, verse), self.segments))
+        self.uniq_art_verses = find_uniq_art_vers(self.artist, self.verses)
 
-def flatten_to_segs(song_list):
-    ret_list = []
+def flatten_songs(song_list):
+    ret_segs, ret_verses, ret_uniq_art_verses = [], [], []
     for cur_song in song_list:
-        for seg in cur_song.segments:
-            ret_list.append(seg)
-    return ret_list
+        ret_segs = ret_segs + cur_song.segments
+        ret_verses = ret_verses + cur_song.verses
+        ret_uniq_art_verses = ret_uniq_art_verses + cur_song.uniq_art_verses
+    return ret_segs, ret_verses, ret_uniq_art_verses
 
 #album is a wrapper for holding songs, and verses, don't need it to hold song_segments but it can
 class album():
@@ -201,21 +203,22 @@ class album():
         self.name = name
         self.artist = artist
         self.songs = songs
-        song_segments = flatten_to_segs(songs)
-        self.verses = list(filter(lambda s: isinstance(s, verse), song_segments))
+        self.segments, self.verses, self.uniq_art_verses = flatten_songs(self.songs)
 #aritst is similar but holds albums, songs and verses
 class artist():
     def __init__(self, name, albums):
         self.name = name
         self.albums = albums
         self.songs = []
+        self.segments = []
         self.verses = []
+        self.uniq_art_verses = []
         for alb in albums:
             self.songs = self.songs + alb.songs
+            self.segments = self.segments + alb.segments
             self.verses = self.verses + alb.verses
-        #here we should make another attribute like unique verses, feed in verses and get back uniques verses
-        self.uniq_art_verses = find_uniq_art_vers(self.name, self.verses)
-            
+            self.uniq_art_verses = self.uniq_art_verses + alb.uniq_art_verses
+
 #finally a function to build all this stuff
 def construct_albums(albs_dic, artist_nm):
     albums = []

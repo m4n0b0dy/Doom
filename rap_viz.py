@@ -28,15 +28,18 @@ def unique_words_hist(artist_obj_list, all_feat_artist=False, song_or_verse='ver
         for sng in art.songs:
             one_song_uniqs = set()
             one_song_all = []
-            for seg in sng.segments:
-                #uses function to check if it's our artist or verse
-                if type(seg) == verse and (all_feat_artist or seg in art.uniq_art_verses):
-                    #add this individual verse ratio
-                    uniq_vs.append(len(seg.unique_words)/len(seg.all_words))
-                    #add unique words in verses by artist
-                    one_song_uniqs = one_song_uniqs|seg.unique_words
-                    #add words like a per capita
-                    one_song_all.extend(seg.all_words)
+            if all_feat_artist:
+                ver_iter = sng.verses
+            else:
+                ver_iter = sng.uniq_art_verses
+
+            for v in ver_iter:
+                #add this individual verse ratio
+                uniq_vs.append(len(v.unique_words)/len(v.all_words))
+                #add unique words in verses by artist
+                one_song_uniqs = one_song_uniqs|v.unique_words
+                #add words like a per capita
+                one_song_all.extend(v.all_words)
             if one_song_uniqs and one_song_all:
                 #then add the ratio to verses by song by artist
                 uniq_ss.append(len(one_song_uniqs)/len(one_song_all))
