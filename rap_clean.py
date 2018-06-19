@@ -181,6 +181,7 @@ class song():
                     #if it passes, create verse object with special cleaning, properties, etc.
                     verse_seg = verse(seg.typ, seg.label, seg.start, seg.end)
                     verse_seg.content = seg.content
+                    verse_seg.run_all_split()
                     seg = verse_seg
                 #if it was originally classified as a verse, but doesn't pass test, it's more of a chorus
                 else:
@@ -231,9 +232,6 @@ def construct_albums(albs_dic, artist_nm):
             song_obj.create_song_as_seg()
             song_objs.append(song_obj)
         album_obj = album(artist_nm, alb_name, song_objs)
-        #extra verse cleaning
-        for v in album_obj.verses:
-            v.run_all_split()
         albums.append(album_obj)
     return albums
 
