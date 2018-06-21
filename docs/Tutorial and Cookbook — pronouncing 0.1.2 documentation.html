@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<!-- saved from url=(0058)https://pronouncing.readthedocs.io/en/latest/tutorial.html -->
+<html class=" js flexbox canvas canvastext webgl no-touch geolocation postmessage websqldatabase indexeddb hashchange history draganddrop websockets rgba hsla multiplebgs backgroundsize borderimage borderradius boxshadow textshadow opacity cssanimations csscolumns cssgradients cssreflections csstransforms csstransforms3d csstransitions fontface no-generatedcontent video audio localstorage sessionstorage webworkers applicationcache svg inlinesvg smil svgclippaths" lang="en" style=""><!--<![endif]--><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Tutorial and Cookbook — pronouncing 0.1.2 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+
+  
+    <link rel="stylesheet" href="https://cdnmedia.readthedocs.org/css/sphinx_rtd_theme.css" type="text/css">
+  
+    <link rel="stylesheet" href="https://cdnmedia.readthedocs.org/css/readthedocs-doc-embed.css" type="text/css">
+  
+
+  
+    <link rel="top" title="pronouncing 0.1.2 documentation" href="https://pronouncing.readthedocs.io/en/latest/index.html">
+        <link rel="next" title="Pronouncing API Reference" href="https://pronouncing.readthedocs.io/en/latest/pronouncing.html">
+        <link rel="prev" title="Documentation for pronouncing" href="https://pronouncing.readthedocs.io/en/latest/index.html">
+ 
+<!-- RTD Extra Head -->
+
+
+
+<!-- 
+Read the Docs is acting as the canonical URL for your project. 
+If you want to change it, more info is available in our docs:
+  http://docs.readthedocs.org/en/latest/canonical.html
+-->
+<link rel="canonical" href="http://pronouncing.readthedocs.org/en/latest/tutorial.html">
+
+<script type="text/javascript" async="" src="./Tutorial and Cookbook — pronouncing 0.1.2 documentation_files/ga.js.download"></script><script type="text/javascript">
+  // This is included here because other places don't have access to the pagename variable.
+  var READTHEDOCS_DATA = {
+    project: "pronouncing",
+    version: "latest",
+    language: "en",
+    page: "tutorial",
+    builder: "sphinx",
+    theme: "sphinx_rtd_theme",
+    docroot: "/docs/",
+    source_suffix: ".rst",
+    api_host: "https://readthedocs.org/",
+    commit: "841ccdf2266fbc0f2a27724853dfd4182cbc585a"
+  }
+  // Old variables
+  var doc_version = "latest";
+  var doc_slug = "pronouncing";
+  var page_name = "tutorial";
+  var html_theme = "sphinx_rtd_theme";
+</script>
+<!-- RTD Analytics Code -->
+<!-- Included in the header because you don't have a footer block. -->
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-17997319-1']);
+  _gaq.push(['_trackPageview']);
+
+  // User Analytics Code
+  _gaq.push(['user._setAccount', 'None']);
+  _gaq.push(['user._trackPageview']);
+  // End User Analytics Code
+
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+<!-- end RTD Analytics Code -->
+<!-- end RTD <extrahead> -->
+
+
+  
+  <script src="./Tutorial and Cookbook — pronouncing 0.1.2 documentation_files/modernizr.min.js.download"></script>
+
+</head>
+
+<body class="wy-body-for-nav vsc-initialized" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+
+        
+          <a href="https://pronouncing.readthedocs.io/en/latest/index.html" class="icon icon-home"> pronouncing
+        
+
+        
+        </a>
+
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="https://pronouncing.readthedocs.io/en/latest/search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs">
+    <input type="hidden" name="check_keywords" value="yes">
+    <input type="hidden" name="area" value="default">
+  </form>
+</div>
+
+        
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="https://pronouncing.readthedocs.io/en/latest/tutorial.html">Tutorial and Cookbook</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="https://pronouncing.readthedocs.io/en/latest/tutorial.html#word-pronunciations">Word pronunciations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="https://pronouncing.readthedocs.io/en/latest/tutorial.html#pronunciation-search">Pronunciation search</a></li>
+<li class="toctree-l2"><a class="reference internal" href="https://pronouncing.readthedocs.io/en/latest/tutorial.html#counting-syllables">Counting syllables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="https://pronouncing.readthedocs.io/en/latest/tutorial.html#meter">Meter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="https://pronouncing.readthedocs.io/en/latest/tutorial.html#rhyme">Rhyme</a></li>
+<li class="toctree-l2"><a class="reference internal" href="https://pronouncing.readthedocs.io/en/latest/tutorial.html#next-steps">Next steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="https://pronouncing.readthedocs.io/en/latest/pronouncing.html">Pronouncing API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="https://pronouncing.readthedocs.io/en/latest/authors.html">Credits and Acknowledgements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="https://pronouncing.readthedocs.io/en/latest/history.html">History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="https://pronouncing.readthedocs.io/en/latest/history.html#id1">0.1.2 (2015-06-23)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="https://pronouncing.readthedocs.io/en/latest/history.html#id2">0.1.1 (2015-06-12)</a></li>
+</ul>
+
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="https://pronouncing.readthedocs.io/en/latest/index.html">pronouncing</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="https://pronouncing.readthedocs.io/en/latest/index.html">Docs</a> »</li>
+      
+    <li>Tutorial and Cookbook</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="https://github.com/aparrish/pronouncingpy/blob/master/docs/tutorial.rst" class="fa fa-github"> Edit on GitHub</a>
+          
+        
+      </li>
+  </ul>
+  <hr>
+</div>
+          <div role="main" class="document">
+            
+  <div class="section" id="tutorial-and-cookbook">
+<h1>Tutorial and Cookbook<a class="headerlink" href="https://pronouncing.readthedocs.io/en/latest/tutorial.html#tutorial-and-cookbook" title="Permalink to this headline">¶</a></h1>
+<p>This tutorial will demonstrate how to perform several common tasks with the
+Pronouncing library and provide a few examples of how the library can be used
+creatively.</p>
+<div class="section" id="word-pronunciations">
+<h2>Word pronunciations<a class="headerlink" href="https://pronouncing.readthedocs.io/en/latest/tutorial.html#word-pronunciations" title="Permalink to this headline">¶</a></h2>
+<p>Let’s start by using Pronouncing to get the pronunciation for a given word.
+Here’s the code:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pronouncing</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pronouncing</span><span class="o">.</span><span class="n">phones_for_word</span><span class="p">(</span><span class="s">"permit"</span><span class="p">)</span>
+<span class="go">[u'P ER0 M IH1 T', u'P ER1 M IH2 T']</span>
+</pre></div>
+</div>
+<p>The <a class="reference internal" href="https://pronouncing.readthedocs.io/en/latest/pronouncing.html#pronouncing.phones_for_word" title="pronouncing.phones_for_word"><code class="xref py py-func docutils literal"><span class="pre">pronouncing.phones_for_word()</span></code></a> function returns a list of all
+pronunciations for the given word found in the CMU pronouncing dictionary.
+Pronunciations are given using a special phonetic alphabet known as ARPAbet.
+<a class="reference external" href="http://www.speech.cs.cmu.edu/cgi-bin/cmudict#phones">Here’s a list of ARPAbet symbols and what English sounds they stand for</a>. Each token in a
+pronunciation string is called a “phone.” The numbers after the vowels indicate
+the vowel’s stress. The number <code class="docutils literal"><span class="pre">1</span></code> indicates primary stress; <code class="docutils literal"><span class="pre">2</span></code> indicates
+secondary stress; and <code class="docutils literal"><span class="pre">0</span></code> indicates unstressed. (<a class="reference external" href="https://en.wikipedia.org/wiki/Stress_and_vowel_reduction_in_English">Wikipedia has a good
+overview of how stress works in English</a>, if
+you’re interested.)</p>
+<p>Sometimes, the pronouncing dictionary has more than one pronunciation for the
+same word. “Permit” is a good example: it can be pronounced either with the
+stress on the first syllable (“do you have a permit to program here?”) or
+on the second syllable (“will you permit me to program here?”). For this
+reason, the <a class="reference internal" href="https://pronouncing.readthedocs.io/en/latest/pronouncing.html#pronouncing.phones_for_word" title="pronouncing.phones_for_word"><code class="xref py py-func docutils literal"><span class="pre">pronouncing.phones_for_word()</span></code></a> function returns a list of
+possible pronunciations. (You’ll need to come up with your own criteria for
+deciding which pronunciation is best for your purposes.)</p>
+<p>Here’s how to calculate the most common sounds in a given text:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pronouncing</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">text</span> <span class="o">=</span> <span class="s">"april is the cruelest month breeding lilacs out of the dead"</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">count</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">words</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">words</span><span class="p">:</span>
+<span class="gp">... </span>  <span class="n">pronunciation_list</span> <span class="o">=</span> <span class="n">pronouncing</span><span class="o">.</span><span class="n">phones_for_word</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+<span class="gp">... </span>  <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pronunciation_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">count</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">pronunciation_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">" "</span><span class="p">))</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">count</span><span class="o">.</span><span class="n">most_common</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="go">[(u'AH0', 4), (u'L', 4), (u'D', 3), (u'R', 3), (u'DH', 2)]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="pronunciation-search">
+<h2>Pronunciation search<a class="headerlink" href="https://pronouncing.readthedocs.io/en/latest/tutorial.html#pronunciation-search" title="Permalink to this headline">¶</a></h2>
+<p>Pronouncing has a helpful function <a class="reference internal" href="https://pronouncing.readthedocs.io/en/latest/pronouncing.html#pronouncing.search" title="pronouncing.search"><code class="xref py py-func docutils literal"><span class="pre">pronouncing.search()</span></code></a> which allows you
+to search the pronouncing dictionary for words whose pronunciation matches a
+particular regular expression. For example, to find words that have within them
+the same sounds as the word “sighs”:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pronouncing</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">phones</span> <span class="o">=</span> <span class="n">pronouncing</span><span class="o">.</span><span class="n">phones_for_word</span><span class="p">(</span><span class="s">"sighs"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pronouncing</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">phones</span><span class="p">)[:</span><span class="mi">5</span><span class="p">]</span>
+<span class="go">[u'incise', u'incised', u'incisor', u'incisors', u'malloseismic']</span>
+</pre></div>
+</div>
+<p>For convenience, word-boundary anchors (<code class="docutils literal"><span class="pre">\b</span></code>) are added automatically to the
+beginning and end of the pattern you pass to <a class="reference internal" href="https://pronouncing.readthedocs.io/en/latest/pronouncing.html#pronouncing.search" title="pronouncing.search"><code class="xref py py-func docutils literal"><span class="pre">pronouncing.search()</span></code></a>. You’re
+free to include any other regular expression syntax in the pattern. Here’s
+another example, which finds all of the words that end in “-iddle”:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">pronouncing</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">"IH1 D AH0 L$"</span><span class="p">)[:</span><span class="mi">5</span><span class="p">]</span>
+<span class="go">[u'biddle', u'criddle', u'fiddle', u'friddle', u'kiddle']</span>
+</pre></div>
+</div>
+<p>Another example, which re-writes a text by taking each word and replacing it
+with a random word that begins with the same first two phones:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pronouncing</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">random</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">text</span> <span class="o">=</span> <span class="s">'april is the cruelest month breeding lilacs out of the dead'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">():</span>
+<span class="gp">... </span>  <span class="n">phones</span> <span class="o">=</span> <span class="n">pronouncing</span><span class="o">.</span><span class="n">phones_for_word</span><span class="p">(</span><span class="n">word</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">... </span>  <span class="n">first2</span> <span class="o">=</span> <span class="n">phones</span><span class="o">.</span><span class="n">split</span><span class="p">()[:</span><span class="mi">2</span><span class="p">]</span>
+<span class="gp">... </span>  <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">pronouncing</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">"^"</span> <span class="o">+</span> <span class="s">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">first2</span><span class="p">))))</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="s">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+<span class="go">apec's isn't them kraatz muffy bronte leichliter outpacing of than delfs</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="counting-syllables">
+<h2>Counting syllables<a class="headerlink" href="https://pronouncing.readthedocs.io/en/latest/tutorial.html#counting-syllables" title="Permalink to this headline">¶</a></h2>
+<p>To get the number of syllables in a word, first get one of its pronunciations
+with <a class="reference internal" href="https://pronouncing.readthedocs.io/en/latest/pronouncing.html#pronouncing.phones_for_word" title="pronouncing.phones_for_word"><code class="xref py py-func docutils literal"><span class="pre">pronouncing.phones_for_word()</span></code></a> and pass the resulting string of
+phones to the <a class="reference internal" href="https://pronouncing.readthedocs.io/en/latest/pronouncing.html#pronouncing.syllable_count" title="pronouncing.syllable_count"><code class="xref py py-func docutils literal"><span class="pre">pronouncing.syllable_count()</span></code></a> function, like so:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pronouncing</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pronunciation_list</span> <span class="o">=</span> <span class="n">pronouncing</span><span class="o">.</span><span class="n">phones_for_word</span><span class="p">(</span><span class="s">"programming"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pronouncing</span><span class="o">.</span><span class="n">syllable_count</span><span class="p">(</span><span class="n">pronunciation_list</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="go">3</span>
+</pre></div>
+</div>
+<p>The following example calculates the total number of syllables in a text
+(assuming that all of the words are found in the pronouncing dictionary):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pronouncing</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">text</span> <span class="o">=</span> <span class="s">"april is the cruelest month breeding lilacs out of the dead"</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">phones</span> <span class="o">=</span> <span class="p">[</span><span class="n">pronouncing</span><span class="o">.</span><span class="n">phones_for_word</span><span class="p">(</span><span class="n">p</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">sum</span><span class="p">([</span><span class="n">pronouncing</span><span class="o">.</span><span class="n">syllable_count</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">phones</span><span class="p">])</span>
+<span class="go">15</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="meter">
+<h2>Meter<a class="headerlink" href="https://pronouncing.readthedocs.io/en/latest/tutorial.html#meter" title="Permalink to this headline">¶</a></h2>
+<p>Pronouncing includes a number of functions to help you isolate metrical
+characteristics of a text. You can use the <a class="reference internal" href="https://pronouncing.readthedocs.io/en/latest/pronouncing.html#pronouncing.stresses" title="pronouncing.stresses"><code class="xref py py-func docutils literal"><span class="pre">pronouncing.stresses()</span></code></a>
+function to get a string that represents the “stress pattern” of a string of
+phones:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pronouncing</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">phones_list</span> <span class="o">=</span> <span class="n">pronouncing</span><span class="o">.</span><span class="n">phones_for_word</span><span class="p">(</span><span class="s">"snappiest"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pronouncing</span><span class="o">.</span><span class="n">stresses</span><span class="p">(</span><span class="n">phones_list</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="go">u'102'</span>
+</pre></div>
+</div>
+<p>A “stress pattern” is a string that contains only the stress values from a
+sequence of phones. (The numbers indicate the level of stress: <code class="docutils literal"><span class="pre">1</span></code> for
+primary stress, <code class="docutils literal"><span class="pre">2</span></code> for secondary stress, and <code class="docutils literal"><span class="pre">0</span></code> for unstressed.)</p>
+<p>You can use the <a class="reference internal" href="https://pronouncing.readthedocs.io/en/latest/pronouncing.html#pronouncing.search_stresses" title="pronouncing.search_stresses"><code class="xref py py-func docutils literal"><span class="pre">pronouncing.search_stresses()</span></code></a> function to find words based on their
+stress patterns. For example, to find words that have two dactyls in them
+(“dactyl” is a metrical foot consisting of one stressed syllable followed by
+two unstressed syllables):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pronouncing</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pronouncing</span><span class="o">.</span><span class="n">search_stresses</span><span class="p">(</span><span class="s">"100100"</span><span class="p">)</span>
+<span class="go">[u'afroamerican', u'afroamericans', u'interrelationship', u'overcapacity']</span>
+</pre></div>
+</div>
+<p>You can use regular expression syntax inside of the patterns you give to
+<a class="reference internal" href="https://pronouncing.readthedocs.io/en/latest/pronouncing.html#pronouncing.search_stresses" title="pronouncing.search_stresses"><code class="xref py py-func docutils literal"><span class="pre">pronouncing.search_stresses()</span></code></a>. For example, to find all words wholly
+consisting of two anapests (unstressed, unstressed, stressed), with “stressed”
+meaning either primary stress or secondary stress:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pronouncing</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pronouncing</span><span class="o">.</span><span class="n">search_stresses</span><span class="p">(</span><span class="s">"^00[12]00[12]$"</span><span class="p">)</span>
+<span class="go">[u'neopositivist', u'undercapitalize', u'undercapitalized']</span>
+</pre></div>
+</div>
+<p>The following example rewrites a text, replacing each word with a random word
+that has the same stress pattern:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pronouncing</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">random</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">text</span> <span class="o">=</span> <span class="s">'april is the cruelest month breeding lilacs out of the dead'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">():</span>
+<span class="gp">... </span>  <span class="n">pronunciations</span> <span class="o">=</span> <span class="n">pronouncing</span><span class="o">.</span><span class="n">phones_for_word</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+<span class="gp">... </span>  <span class="n">pat</span> <span class="o">=</span> <span class="n">pronouncing</span><span class="o">.</span><span class="n">stresses</span><span class="p">(</span><span class="n">pronunciations</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="gp">... </span>  <span class="n">replacement</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">pronouncing</span><span class="o">.</span><span class="n">search_stresses</span><span class="p">(</span><span class="s">"^"</span><span class="o">+</span><span class="n">pat</span><span class="o">+</span><span class="s">"$"</span><span class="p">))</span>
+<span class="gp">... </span>  <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">replacement</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+<span class="go">u"joneses kopf whats rathbun p's gavan midpoint nill goh the pont's"</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="rhyme">
+<h2>Rhyme<a class="headerlink" href="https://pronouncing.readthedocs.io/en/latest/tutorial.html#rhyme" title="Permalink to this headline">¶</a></h2>
+<p>Pronouncing includes a simple function, <a class="reference internal" href="https://pronouncing.readthedocs.io/en/latest/pronouncing.html#pronouncing.rhymes" title="pronouncing.rhymes"><code class="xref py py-func docutils literal"><span class="pre">pronouncing.rhymes()</span></code></a>, which
+returns a list of words that (potentially) rhyme with a given word. You can use
+it like so:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pronouncing</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pronouncing</span><span class="o">.</span><span class="n">rhymes</span><span class="p">(</span><span class="s">"failings"</span><span class="p">)</span>
+<span class="go">[u'mailings', u'railings', u'tailings']</span>
+</pre></div>
+</div>
+<p>The <a class="reference internal" href="https://pronouncing.readthedocs.io/en/latest/pronouncing.html#pronouncing.rhymes" title="pronouncing.rhymes"><code class="xref py py-func docutils literal"><span class="pre">pronouncing.rhymes()</span></code></a> function returns a list of all possible rhymes
+for the given word—i.e., words that rhyme with any of the given word’s
+pronunciations. If you only want rhymes for one particular pronunciation, the
+the <a class="reference internal" href="https://pronouncing.readthedocs.io/en/latest/pronouncing.html#pronouncing.rhyming_part" title="pronouncing.rhyming_part"><code class="xref py py-func docutils literal"><span class="pre">pronouncing.rhyming_part()</span></code></a> function gives a smaller part of a string
+of phones that can be used with <a class="reference internal" href="https://pronouncing.readthedocs.io/en/latest/pronouncing.html#pronouncing.search" title="pronouncing.search"><code class="xref py py-func docutils literal"><span class="pre">pronouncing.search()</span></code></a> to find rhyming
+words. The following code demonstrates how to find rhyming words for two
+different pronunciations of “uses”:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pronouncing</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pronunciations</span> <span class="o">=</span> <span class="n">pronouncing</span><span class="o">.</span><span class="n">phones_for_word</span><span class="p">(</span><span class="s">"uses"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sss</span> <span class="o">=</span> <span class="n">pronouncing</span><span class="o">.</span><span class="n">rhyming_part</span><span class="p">(</span><span class="n">pronunciations</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">zzz</span> <span class="o">=</span> <span class="n">pronouncing</span><span class="o">.</span><span class="n">rhyming_part</span><span class="p">(</span><span class="n">pronunciations</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pronouncing</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">sss</span> <span class="o">+</span> <span class="s">"$"</span><span class="p">)[:</span><span class="mi">5</span><span class="p">]</span>
+<span class="go">[u"bruce's", u'juices', u'medusas', u'produces', u"tuscaloosa's"]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pronouncing</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">zzz</span> <span class="o">+</span> <span class="s">"$"</span><span class="p">)[:</span><span class="mi">5</span><span class="p">]</span>
+<span class="go">[u'abuses', u'cabooses', u'disabuses', u'excuses', u'induces']</span>
+</pre></div>
+</div>
+<p>Use the <code class="docutils literal"><span class="pre">in</span></code> operator to check to see if one word rhymes with another:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pronouncing</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s">"wheeze"</span> <span class="ow">in</span> <span class="n">pronouncing</span><span class="o">.</span><span class="n">rhymes</span><span class="p">(</span><span class="s">"cheese"</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s">"geese"</span> <span class="ow">in</span> <span class="n">pronouncing</span><span class="o">.</span><span class="n">rhymes</span><span class="p">(</span><span class="s">"cheese"</span><span class="p">)</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+<p>The following example rewrites a text, replacing each word with a rhyming
+word (when a rhyming word is available):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pronouncing</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">random</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">text</span> <span class="o">=</span> <span class="s">'april is the cruelest month breeding lilacs out of the dead'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">():</span>
+<span class="gp">... </span>  <span class="n">rhymes</span> <span class="o">=</span> <span class="n">pronouncing</span><span class="o">.</span><span class="n">rhymes</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+<span class="gp">... </span>  <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rhymes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">rhymes</span><span class="p">))</span>
+<span class="gp">... </span>  <span class="k">else</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="s">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+<span class="go">april wiles's duh coolest month ceding pontiac's krout what've worthey wehde</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="next-steps">
+<h2>Next steps<a class="headerlink" href="https://pronouncing.readthedocs.io/en/latest/tutorial.html#next-steps" title="Permalink to this headline">¶</a></h2>
+<p>Hopefully this is just the beginning of your rhyme- and meter-filled journey.
+Consult <a class="reference internal" href="https://pronouncing.readthedocs.io/en/latest/pronouncing.html"><em>Pronouncing API Reference</em></a> for more information about individual functions in the
+library.</p>
+<p>Pronouncing is just one possible interface for the CMU pronouncing dictionary,
+and you may find that for your particular purposes, a more specialized
+approach is necessary. In that case, feel free to <a class="reference external" href="http://github.com/aparrish/pronouncingpy">peruse Pronouncing’s source
+code</a> for helpful hints and
+tidbits.</p>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="https://pronouncing.readthedocs.io/en/latest/pronouncing.html" class="btn btn-neutral float-right" title="Pronouncing API Reference" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="https://pronouncing.readthedocs.io/en/latest/index.html" class="btn btn-neutral" title="Documentation for pronouncing" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr>
+
+  <div role="contentinfo">
+    <p>
+        © Copyright 2015, Allison Parrish.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org/">Read the Docs</a>.
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"> Read the Docs</span>
+      v: latest
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl>
+        <dt>Versions</dt>
+        
+          <dd><a href="https://pronouncing.readthedocs.io/en/latest/">latest</a></dd>
+        
+          <dd><a href="https://pronouncing.readthedocs.io/en/stable/">stable</a></dd>
+        
+      </dl>
+      <dl>
+        <dt>Downloads</dt>
+        
+          <dd><a href="https://readthedocs.org/projects/pronouncing/downloads/pdf/latest/">pdf</a></dd>
+        
+          <dd><a href="https://readthedocs.org/projects/pronouncing/downloads/htmlzip/latest/">htmlzip</a></dd>
+        
+          <dd><a href="https://readthedocs.org/projects/pronouncing/downloads/epub/latest/">epub</a></dd>
+        
+      </dl>
+      <dl>
+        <dt>On Read the Docs</dt>
+          <dd>
+            <a href="https://https//readthedocs.org/projects/pronouncing/?fromdocs=pronouncing">Project Home</a>
+          </dd>
+          <dd>
+            <a href="https://https//readthedocs.org/builds/pronouncing/?fromdocs=pronouncing">Builds</a>
+          </dd>
+      </dl>
+      <hr>
+      Free document hosting provided by <a href="http://www.readthedocs.org/">Read the Docs</a>.
+
+    </div>
+  </div>
+
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.1.2',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="https://cdnmedia.readthedocs.org/javascript/jquery/jquery-2.0.3.min.js"></script>
+      <script type="text/javascript" src="https://cdnmedia.readthedocs.org/javascript/jquery/jquery-migrate-1.2.1.min.js"></script>
+      <script type="text/javascript" src="https://cdnmedia.readthedocs.org/javascript/underscore.js"></script>
+      <script type="text/javascript" src="https://cdnmedia.readthedocs.org/javascript/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnmedia.readthedocs.org/javascript/readthedocs-doc-embed.js"></script>
+
+  
+
+  
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+
+</body></html>
