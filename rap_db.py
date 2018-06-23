@@ -91,6 +91,7 @@ def add_songs(conn, base_art_name, art_name, art):
                     (SELECT artist_id FROM artists WHERE artist_name = %(art)s))
                     ON CONFLICT (album_name, artist_id, base_artist_id) DO NOTHING;''', {'art':art_name,'alb':alb_name}
         alb_add.append(add)
+        #MIGHT MAKE A CHANGE HERE TO PREVENT DUPLICATE SONGS BEING ENTERED BY SAME ARTIST
         for sng_name, sng in alb.items():
             add = '''WITH base_art_id AS (SELECT base_artist_id FROM artists WHERE artist_name = %(art)s),
                     art_id AS (SELECT artist_id FROM artists WHERE artist_name = %(art)s)

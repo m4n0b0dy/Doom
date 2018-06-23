@@ -59,6 +59,7 @@ def unique_verses_bar(artist_obj_list, all_feat_artist=False, verse_count = 10):
     #go through all artists, make a trace, plot them all
     #also works for ind artist
     traces = []
+    ret_dic = {}
     offline.init_notebook_mode(connected=True)
     for art in artist_obj_list:
         all_verses = []
@@ -71,11 +72,13 @@ def unique_verses_bar(artist_obj_list, all_feat_artist=False, verse_count = 10):
             all_verses.append((len(v.unique_words)/len(v.all_words), v.content, len(v.all_words)))  
 
         all_verses = sorted(all_verses, reverse=True)[:verse_count]
-        ys = []
+        #this dic is for info purposes
+        ret_dic[art.name] = all_verses
         xs = []
         content = []
+        #sort this again the other way I guess for desc looks
         for dex, a_v in enumerate(sorted(all_verses)):
-            con = re.sub('\n+', '<br>',a_v[1]).rstrip('<br>')
+            con = re.sub('\n+', '<br>',a_v[1]).rstrip('<br>').lstrip('<br>')
             xs.append(a_v[2])
             content.append(con+'<br>('+str(round(a_v[0], RND))+')')
                 
@@ -104,5 +107,45 @@ def unique_verses_bar(artist_obj_list, all_feat_artist=False, verse_count = 10):
                                 zeroline=False,
                                 showline=False,
                                 showticklabels=False))
+    fig = go.Figure(data=traces, layout=layout)
+    offline.iplot({'data': traces, 'layout': layout})
+    return ret_dic
+
+def unique_count_to_length(artist_obj_list, all_feat_artist=False):
+    traces = []
+    offline.init_notebook_mode(connected=True)
+    for art in artist_obj_list:
+        xs = []
+        ys = []
+        song_names = []
+        for sng in art.songs:
+            one_song_uniqs = set()
+            one_song_all = []
+            if all_feat_artist:
+                ver_iter = sng.verses
+            else:
+                ver_iter = sng.uniq_art_verses
+
+            for v in ver_iter:
+                one_song_uniqs = one_song_uniqs|v.unique_words
+                one_song_all.extend(v.all_words)
+            if one_song_uniqs and one_song_all:
+                xs.append(sum(map(len, one_song_uniqs))/float(len(one_song_uniqs)))
+                ys.append(float(len(one_song_uniqs)/len(one_song_all)))
+                song_names.append(sng.name)
+
+        trace = go.Scatter(
+                x = xs,
+                y = ys,
+                text=song_names,
+                name=art.name,
+                mode = 'markers',
+                hoverinfo='text')
+        traces.append(trace)
+
+    layout = go.Layout(title='Avg Unique Word Length by Count by Song',
+                    xaxis=dict(title='Avg Unique Word Length'),
+                    yaxis=dict(title='Unique Word Count'),
+                    hovermode='closest')
     fig = go.Figure(data=traces, layout=layout)
     offline.iplot({'data': traces, 'layout': layout})
