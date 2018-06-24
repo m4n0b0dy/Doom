@@ -1,4 +1,3 @@
-
 import matplotlib.pyplot as plt
 from statistics import mean, median
 from rap_clean import verse
@@ -56,96 +55,113 @@ def unique_words_hist(artist_obj_list, all_feat_artist=False, song_or_verse='ver
 
 #my favorite funciton of all time tbh
 def unique_verses_bar(artist_obj_list, all_feat_artist=False, verse_count = 10):
-    #go through all artists, make a trace, plot them all
-    #also works for ind artist
-    traces = []
-    ret_dic = {}
-    offline.init_notebook_mode(connected=True)
-    for art in artist_obj_list:
-        all_verses = []
-        ver_iter = []
-        if all_feat_artist:
-            ver_iter = art.verses
-        else:
-            ver_iter = art.uniq_art_verses
-        for v in ver_iter:
-            all_verses.append((len(v.unique_words)/len(v.all_words), v.content, len(v.all_words)))  
+	#go through all artists, make a trace, plot them all
+	#also works for ind artist
+	traces = []
+	ret_dic = {}
+	offline.init_notebook_mode(connected=True)
+	for art in artist_obj_list:
+		#only iterating over songs so we can have song name too
+		all_verses = []
+		for sng in art.songs:
+			ver_iter = []
+			if all_feat_artist:
+				ver_iter = sng.verses
+			else:
+				ver_iter = sng.uniq_art_verses
+			for v in ver_iter:
+				all_verses.append((len(v.unique_words)/len(v.all_words), v.content, len(v.all_words),sng.name))  
+		#outside of for loop to get all artist work not all song
+		all_verses = sorted(all_verses, reverse=True)[:verse_count]
+		#this dic is for info purposes
+		ret_dic[art.name] = all_verses
+		xs = []
+		content = []
+		#sort this again the other way I guess for desc looks
+		for dex, a_v in enumerate(sorted(all_verses)):
+			con = re.sub('\n+', '<br>',a_v[1]).rstrip('<br>').lstrip('<br>')
+			xs.append(a_v[2])
+			content.append(con+'<br><br>Song: '+a_v[3]+' -- ('+str(round(a_v[0], RND))+')')
 
-        all_verses = sorted(all_verses, reverse=True)[:verse_count]
-        #this dic is for info purposes
-        ret_dic[art.name] = all_verses
-        xs = []
-        content = []
-        #sort this again the other way I guess for desc looks
-        for dex, a_v in enumerate(sorted(all_verses)):
-            con = re.sub('\n+', '<br>',a_v[1]).rstrip('<br>').lstrip('<br>')
-            xs.append(a_v[2])
-            content.append(con+'<br>('+str(round(a_v[0], RND))+')')
-                
-        trace = go.Bar(x=xs,
-                orientation = 'h',
-                text=content,
-                #doesn't do anything right now
-                textposition='bottom',
-                width=.9,
-                hoverinfo='text',
-                name=art.name)
-        traces.append(trace)
-        #on to next artist if there is one
-    
-    layout = go.Layout(title='Top Unique Verses',
-                       barmode='stack',
-                       hovermode='closest',
-                       #want solution to text alignment left
-                       #https://stackoverflow.com/questions/50003531/r-plotly-hover-label-text-alignment
-                    xaxis=dict(title='Words in Verse',
-                                autorange=True,
-                                zeroline=False,
-                                showline=False),
-                    yaxis=dict(title='(Unique/All) Words per Verse',
-                                autorange=True,
-                                zeroline=False,
-                                showline=False,
-                                showticklabels=False))
-    fig = go.Figure(data=traces, layout=layout)
-    offline.iplot({'data': traces, 'layout': layout})
-    return ret_dic
+		trace = go.Bar(x=xs,
+				orientation = 'h',
+				text=content,
+				#doesn't do anything right now
+				textposition='bottom',
+				width=.9,
+				hoverinfo='text',
+				name=art.name)
+		traces.append(trace)
+	#on to next artist if there is one
+	layout = go.Layout(title='Top Unique Verses',
+						barmode='stack',
+						hovermode='closest',
+						#want solution to text alignment left
+						#https://stackoverflow.com/questions/50003531/r-plotly-hover-label-text-alignment
+						xaxis=dict(title='Words in Verse',
+						autorange=True,
+						zeroline=False,
+						showline=False),
+						yaxis=dict(title='(Unique/All) Words per Verse',
+						autorange=True,
+						zeroline=False,
+						showline=False,
+						showticklabels=False))
+	fig = go.Figure(data=traces, layout=layout)
+	offline.iplot({'data': traces, 'layout': layout})
+	return ret_dic
 
-def unique_count_to_length(artist_obj_list, all_feat_artist=False):
-    traces = []
-    offline.init_notebook_mode(connected=True)
-    for art in artist_obj_list:
-        xs = []
-        ys = []
-        song_names = []
-        for sng in art.songs:
-            one_song_uniqs = set()
-            one_song_all = []
-            if all_feat_artist:
-                ver_iter = sng.verses
-            else:
-                ver_iter = sng.uniq_art_verses
+#nice! By album as well
+def unique_count_to_length(artist_obj_list, all_feat_artist=False, by_alb=False):
+	traces = []
+	offline.init_notebook_mode(connected=True)
+	for art in artist_obj_list:
+		xs = []
+		ys = []
+		song_names = []
+		for alb in art.albums:
+			for sng in alb.songs:
+				one_song_uniqs = set()
+				one_song_all = []
 
-            for v in ver_iter:
-                one_song_uniqs = one_song_uniqs|v.unique_words
-                one_song_all.extend(v.all_words)
-            if one_song_uniqs and one_song_all:
-                xs.append(sum(map(len, one_song_uniqs))/float(len(one_song_uniqs)))
-                ys.append(float(len(one_song_uniqs)/len(one_song_all)))
-                song_names.append(sng.name)
+				if all_feat_artist:
+					ver_iter = sng.verses
+				else:
+					ver_iter = sng.uniq_art_verses
 
-        trace = go.Scatter(
-                x = xs,
-                y = ys,
-                text=song_names,
-                name=art.name,
-                mode = 'markers',
-                hoverinfo='text')
-        traces.append(trace)
+				for v in ver_iter:
+					one_song_uniqs = one_song_uniqs|v.unique_words
+					one_song_all.extend(v.all_words)
+				if one_song_uniqs and one_song_all:
+					xs.append(sum(map(len, one_song_uniqs))/float(len(one_song_uniqs)))
+					ys.append(float(len(one_song_uniqs)/len(one_song_all)))
+					song_names.append(sng.name)
+			#if we are recording one color per album
+			if by_alb:
+				traces.append(go.Scatter(
+						x = xs,
+						y = ys,
+						text=song_names,
+						name=art.name+': '+alb.name,
+						mode = 'markers',
+						hoverinfo='text'))
+				#reset song info as well
+				xs = []
+				ys = []
+				song_names = []
+		#if we are recording one color per artist
+		if not by_alb:
+			traces.append(go.Scatter(
+						x = xs,
+						y = ys,
+						text=song_names,
+						name=art.name,
+						mode = 'markers',
+						hoverinfo='text'))
 
-    layout = go.Layout(title='Avg Unique Word Length by Count by Song',
-                    xaxis=dict(title='Avg Unique Word Length'),
-                    yaxis=dict(title='Unique Word Count'),
-                    hovermode='closest')
-    fig = go.Figure(data=traces, layout=layout)
-    offline.iplot({'data': traces, 'layout': layout})
+	layout = go.Layout(title='Avg Unique Word Length by Count by Song',
+	xaxis=dict(title='Avg Unique Word Length'),
+	yaxis=dict(title='Unique Word Count'),
+	hovermode='closest')
+	fig = go.Figure(data=traces, layout=layout)
+	offline.iplot({'data': traces, 'layout': layout})

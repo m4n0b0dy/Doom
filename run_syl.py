@@ -6,7 +6,7 @@ from nltk.corpus import cmudict
 from difflib import get_close_matches
 CMU_DICT = cmudict.dict()
 CMU_KEYS = set(CMU_DICT.keys())
-
+#THIS OUTOPUTED WRONG BULL SHIT
 
 estconn = pg2.connect(database='rap_songs', user='keenan', host='localhost', password='keenan')
 cur = estconn.cursor()
@@ -26,7 +26,8 @@ _all_words = _all_words-{'',"'"}
 
 #this is what takes a chunk of time
 c = 0
-for word in _all_words:
+LYRIC_SYL.update(CMU_DICT)
+for word in _all_words - set(LYRIC_SYL.keys()):
 	if c % 1000 == 0 and c != 0:
 		print(c)
 		art_save({'LYRIC_SYLBLS':LYRIC_SYL})

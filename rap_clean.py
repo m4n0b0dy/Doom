@@ -46,21 +46,24 @@ if run:
         cur.execute('''SELECT LOWER(song_lyrics) FROM songs;''')
         query = cur.fetchall()
         _all_words = set()
-        LYRIC_SYL = {}
         for lyrc in query:
             text = lyrc[0]
             text = re.sub('[^0-9a-zA-Z\'\-]+', ' ', text)
             text = text.split(' ')
             _all_words = _all_words|set(text)
-        _all_words = _all_words-{'', "'"}
+
+        LYRIC_SYL = {}    
+        LYRIC_SYL.update(CMU_DICT)
+        _all_words = _all_words-{'', "'"} - set(LYRIC_SYL.keys())
+        #only words not already in LYRIC_SYL from update
+        #should take shorter now
         for word in _all_words:
-            mtch = word
-            if mtch not in CMU_KEYS:
-                mtch = get_close_matches(word, CMU_KEYS)
+            mtch = get_close_matches(word, CMU_KEYS)
             if mtch:
                 try:
                     LYRIC_SYL[word] = CMU_DICT[mtch[0]]
                 except:
+                    #couldn't find a match
                     print(mtch[0])
         art_save({'LYRIC_SYLBLS':LYRIC_SYL})
     except:
@@ -111,7 +114,7 @@ class text_segment():
 
 class verse(text_segment):
     def split_on_word(self):
-        words = re.sub('[^0-9a-zA-Z\'\-]+', ' ', self.content).lower()
+        words = re.sub("[^0-9a-zA-Z\']+", ' ', self.content).lower()
         words = words.split(' ')
         self.all_words = list(filter(None, words))
         self.unique_words = set(self.all_words)
