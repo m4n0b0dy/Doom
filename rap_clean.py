@@ -7,9 +7,7 @@ from nltk.corpus import stopwords
 from nltk.stem import *
 from difflib import SequenceMatcher
 from difflib import get_close_matches
-from nltk.corpus import cmudict
-CMU_DICT = cmudict.dict()
-CMU_KEYS = set(CMU_DICT.keys())
+
 #only change run if DB has changed
 run = False
 if run:
@@ -39,6 +37,10 @@ if run:
     #it makes a dictionary of rap words in db to sylabuls
 
     try:
+        from nltk.corpus import cmudict
+        CMU_DICT = cmudict.dict()
+        CMU_KEYS = set(CMU_DICT.keys())
+        
         estconn = pg2.connect(database='rap_songs', user='keenan', host='localhost', password='keenan')
         cur = estconn.cursor()
         cur.execute('''SELECT LOWER(song_lyrics) FROM songs;''')

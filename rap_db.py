@@ -4,6 +4,7 @@ import psycopg2 as pg2
 import psycopg2.extras
 import pickle as pic
 from os import listdir
+from os import path
 from os.path import isfile, join
 
 #create the tables - will over write
