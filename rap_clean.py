@@ -32,44 +32,7 @@ if run:
         art_save({'COMPLETE_RAPPERS':COMPLETE_RAPPERS})
     except:
         COMPLETE_RAPPERS = art_load(nms=['COMPLETE_RAPPERS'])['COMPLETE_RAPPERS']
-
-    #this one takes too long to run everytime so only run if new stuff
-    #it makes a dictionary of rap words in db to sylabuls
-
-    try:
-        from nltk.corpus import cmudict
-        CMU_DICT = cmudict.dict()
-        CMU_KEYS = set(CMU_DICT.keys())
-        
-        estconn = pg2.connect(database='rap_songs', user='keenan', host='localhost', password='keenan')
-        cur = estconn.cursor()
-        cur.execute('''SELECT LOWER(song_lyrics) FROM songs;''')
-        query = cur.fetchall()
-        _all_words = set()
-        for lyrc in query:
-            text = lyrc[0]
-            text = re.sub('[^0-9a-zA-Z\'\-]+', ' ', text)
-            text = text.split(' ')
-            _all_words = _all_words|set(text)
-
-        LYRIC_SYL = {}    
-        LYRIC_SYL.update(CMU_DICT)
-        _all_words = _all_words-{'', "'"} - set(LYRIC_SYL.keys())
-        #only words not already in LYRIC_SYL from update
-        #should take shorter now
-        for word in _all_words:
-            mtch = get_close_matches(word, CMU_KEYS)
-            if mtch:
-                try:
-                    LYRIC_SYL[word] = CMU_DICT[mtch[0]]
-                except:
-                    #couldn't find a match
-                    print(mtch[0])
-        art_save({'LYRIC_SYLBLS':LYRIC_SYL})
-    except:
-        LYRIC_SYL = art_load(nms=['LYRIC_SYLBLS'])['LYRIC_SYLBLS']
 else:
-    LYRIC_SYL = art_load(nms=['LYRIC_SYLBLS'])['LYRIC_SYLBLS']
     COMPLETE_RAPPERS = art_load(nms=['COMPLETE_RAPPERS'])['COMPLETE_RAPPERS']
 
 
@@ -118,13 +81,6 @@ class verse(text_segment):
         words = words.split(' ')
         self.all_words = list(filter(None, words))
         self.unique_words = set(self.all_words)
-        self.word_syls = {}
-        #thought it would be faster to store a smaller dic than CMU index everytime
-        for word in self.unique_words:
-            if word in LYRIC_SYL.keys():
-                self.word_syls[word] = LYRIC_SYL[word]
-            else:
-                self.word_syls[word] = ['unk']
     
     def split_on_line(self):
         self.all_lines = list(filter(None, self.content.split('\n')))
