@@ -5,46 +5,12 @@ import re
 import plotly.offline as offline
 import plotly.figure_factory as ff
 import plotly.graph_objs as go
-from rap_db import art_load, art_save
+from nltk.corpus import cmudict
+import pyphen
+PYPHEN_DIC = pyphen.Pyphen(lang='en')
+CMU_DICT = cmudict.dict()
+CMU_KEYS = set(CMU_DICT.keys())
 RND = 3
-
-#only change run if DB has changed
-run = False
-if run:
-    try:
-        from nltk.corpus import cmudict
-        CMU_DICT = cmudict.dict()
-        CMU_KEYS = set(CMU_DICT.keys())
-        
-        estconn = pg2.connect(database='rap_songs', user='keenan', host='localhost', password='keenan')
-        cur = estconn.cursor()
-        cur.execute('''SELECT LOWER(song_lyrics) FROM songs;''')
-        query = cur.fetchall()
-        _all_words = set()
-        for lyrc in query:
-            text = lyrc[0]
-            text = re.sub('[^0-9a-zA-Z\'\-]+', ' ', text)
-            text = text.split(' ')
-            _all_words = _all_words|set(text)
-
-        LYRIC_SYL = {}    
-        LYRIC_SYL.update(CMU_DICT)
-        _all_words = _all_words-{'', "'"} - set(LYRIC_SYL.keys())
-        #only words not already in LYRIC_SYL from update
-        #should take shorter now
-        for word in _all_words:
-            mtch = get_close_matches(word, CMU_KEYS)
-            if mtch:
-                try:
-                    LYRIC_SYL[word] = CMU_DICT[mtch[0]]
-                except:
-                    #couldn't find a match
-                    print(mtch[0])
-        art_save({'LYRIC_SYLBLS':LYRIC_SYL})
-    except:
-        LYRIC_SYL = art_load(nms=['LYRIC_SYLBLS'])['LYRIC_SYLBLS']
-else:
-    LYRIC_SYL = art_load(nms=['LYRIC_SYLBLS'])['LYRIC_SYLBLS']
 
 def gen_plot(typ, traces, arts, b):
     fig = ff.create_distplot(traces, arts, bin_size=b, rug_text=traces, show_curve=True)
