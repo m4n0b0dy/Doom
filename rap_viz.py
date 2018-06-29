@@ -86,7 +86,7 @@ def unique_verses_bar(artist_obj_list, all_feat_artist=False, verse_count = 10):
 		for dex, a_v in enumerate(sorted(all_verses)):
 			con = re.sub('\n+', '<br>',a_v[1]).rstrip('<br>').lstrip('<br>')
 			xs.append(a_v[2])
-			content.append(con+'<br><br>Song: '+a_v[3]+' -- ('+str(round(a_v[0], RND))+')')
+			content.append(con+'<br>Song: '+a_v[3]+' -- ('+str(round(a_v[0], RND))+')')
 
 		trace = go.Bar(x=xs,
 				orientation = 'h',
