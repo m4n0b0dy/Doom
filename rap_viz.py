@@ -8,6 +8,8 @@ import plotly.graph_objs as go
 from nltk.corpus import cmudict
 import pyphen
 from collections import Counter
+#from random import shuffle
+from IPython.core.display import display, HTML
 
 PYPHEN_DIC = pyphen.Pyphen(lang='en')
 CMU_DICT = cmudict.dict()
