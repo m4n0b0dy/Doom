@@ -7,6 +7,8 @@ import plotly.figure_factory as ff
 import plotly.graph_objs as go
 from nltk.corpus import cmudict
 import pyphen
+from collections import Counter
+
 PYPHEN_DIC = pyphen.Pyphen(lang='en')
 CMU_DICT = cmudict.dict()
 CMU_KEYS = set(CMU_DICT.keys())
