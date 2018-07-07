@@ -78,8 +78,8 @@ def unique_verses_bar(artist_obj_list, all_feat_artist=False, verse_count = 10):
 				ver_iter = sng.verses
 			else:
 				ver_iter = sng.uniq_art_verses
-			for v in ver_iter:
-				all_verses.append((len(v.unique_words)/len(v.all_words), v.content, len(v.all_words),sng.name))  
+			for v_dex, v in enumerate(ver_iter):
+				all_verses.append((len(v.unique_words)/len(v.all_words), v.content, len(v.all_words),sng.name, v_dex))  
 		#outside of for loop to get all artist work not all song
 		all_verses = sorted(all_verses, reverse=True)[:verse_count]
 		#this dic is for info purposes
@@ -90,7 +90,7 @@ def unique_verses_bar(artist_obj_list, all_feat_artist=False, verse_count = 10):
 		for dex, a_v in enumerate(sorted(all_verses)):
 			con = re.sub('\n+', '<br>',a_v[1]).rstrip('<br>').lstrip('<br>')
 			xs.append(a_v[2])
-			content.append(con+'<br>Song: '+a_v[3]+' -- ('+str(round(a_v[0], RND))+')')
+			content.append(con+'<br>Song: "'+a_v[3]+'" - Verse: #'+str(a_v[4])+' - Score:('+str(round(a_v[0], RND))+')')
 
 		trace = go.Bar(x=xs,
 				orientation = 'h',
