@@ -415,11 +415,17 @@ class verse_graph():
         self.vowel_colors = dict(zip(vowels_used, color_list))
         self.vowel_colors.update({'unk':'transparent'})
     
-    #use html to plot verse
+    #use html to plot verse and save html version
     def graph_colored_verse(self):
         strt,end = verse_graph.match_dic[self.match_type]
         #make css
-        self.base_html='<html><style>h1{font-size:40pt;}mark{margin-right: -7.4px;font-family:Arial;font-size:14pt;background-clip:content-box;}'
+        self.base_html='''<html><style>h1{font-size:40pt;}h2{font-size:20pt;}
+        mark{margin-right:-7.4px;font-family:Arial;font-size:14pt;background-clip:content-box;}
+        mark:hover {cursor:help;position: relative}
+        mark span {display:none}
+        mark:hover span {display:block;z-index:1;white-space:nowrap;background:white;color:black;position:absolute;left:0px;margin:10px;top:10px;}'''
+        legend = str()
+
         for vowel, v_color in self.vowel_colors.items():
             if vowel != 'unk':
                 color_string = 'rgba('
@@ -429,15 +435,26 @@ class verse_graph():
                 self.base_html+='mark.'+vowel+'{background-color: '+color_string+';}'
             else:
                 self.base_html+='mark.'+vowel[strt:end]+'{background-color: '+v_color+';}'
+                vowel = vowel[strt:end]
                 
-        self.base_html+='</style><body><h1>Verse breakdown for '+self.artist_name+'</h1><br>'
+            legend+='<mark class="'+vowel+'">'+vowel+'<span>(Count:%%'+vowel+'%%)</span></mark> '
+        self.base_html+='</style><body><h1>Verse breakdown for '+self.song_name+' by '+self.artist_name+'</h1><h2>Vowel Color Legend<br></h2>'+legend+'<br><br>'
+        #make legend
+        every_vowel = []
         #make core html
         for line_obj in self.ver_as_lines:
             for word_to_vowel in line_obj.word_to_vowels:
                 for sylb_w_vowel in word_to_vowel:
                     html_sylbl = sylb_w_vowel[1][strt:end]
-                    self.base_html+='<mark class="'+html_sylbl+'">'+sylb_w_vowel[0]+'</mark>'
+                    every_vowel.append(html_sylbl)
+                    self.base_html+='<mark class="'+html_sylbl+'">'+sylb_w_vowel[0]+'<span>(Sylbl:"'+sylb_w_vowel[0]+'", Vowel:'+html_sylbl+')</span></mark>'
                 self.base_html+='     '
             self.base_html+='<br>'
         self.base_html=self.base_html.rstrip('<br>')
         self.base_html+='</body></html>'
+        #update count in base html string
+        for vwl, v_count in dict(Counter(every_vowel)).items():
+            self.base_html=self.base_html.replace('%%'+vwl+'%%', str(v_count))
+        #write to file
+        with open('%s_colorized.html'%self.song_name.lower().replace(' ','_'), 'w') as f:
+            f.write(self.base_html.replace('margin-right:-7.4px;', 'margin-right:0px;'))
