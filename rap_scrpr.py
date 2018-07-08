@@ -5,8 +5,6 @@ from bs4 import BeautifulSoup
 import urllib
 import time
 from rap_db import *
-#can make this fully automated with the a little more parsing!
-#also fix the error that prints couldnt load
 
 def pull_links(page_link, app = '', sng_scr=False):
 	ret_list = []
@@ -86,10 +84,6 @@ def raw_clean(song_texts, scrape_artist):
 			#sometimes doesn't pull typed right dur
 			typed = re.search(r"Typed by: (.*?)\n", song).group(0)
 			lyrics = song.split(typed,1)[1] 
-			#before we append lyrics, want to clean them slightly further
-			#this is actually hurting my analysis
-			#words = re.sub("([\(\[]).*?([\)\]])", "", lyrics)
-			#words = re.sub("\n","--",words)
 
 			if artist not in song_data:
 				song_data[artist] = {}

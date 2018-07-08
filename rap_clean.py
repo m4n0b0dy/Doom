@@ -202,7 +202,7 @@ class song():
             self.segments.append(seg)
         self.verses = list(filter(lambda s: isinstance(s, verse), self.segments))
         self.uniq_art_verses = find_uniq_art_vers(self.artist, self.verses)
-
+#simple function to pull song info
 def flatten_songs(song_list):
     ret_segs, ret_verses, ret_uniq_art_verses = [], [], []
     for cur_song in song_list:

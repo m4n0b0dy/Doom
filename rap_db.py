@@ -7,8 +7,7 @@ from os import listdir
 from os import path
 from os.path import isfile, join
 
-#create the tables - will over write
-#add to database meta stats when you have em
+#create the tables - will over write any data there
 def create_music_tables(conn, bypass = False):
     ans = 'y'
     if not bypass:
@@ -66,7 +65,7 @@ def create_music_tables(conn, bypass = False):
         conn.commit()
     else:
         print('be more careful next time!')
-
+#add base artist aka what was used in pull - not used later
 def add_base(conn, base_art_name):
     base_art_add = '''INSERT INTO base_artists (base_artist_name) VALUES (%(base_art)s)
                     ON CONFLICT (base_artist_name) DO NOTHING;''', {'base_art':base_art_name}
@@ -80,19 +79,21 @@ def add_base(conn, base_art_name):
 
 #add to database meta stats when you have em
 def add_songs(conn, base_art_name, art_name, art):
+    #add or ignore artist
     art_add = '''INSERT INTO artists (artist_name, base_artist_id) VALUES (%(art)s,
                 (SELECT base_artist_id FROM base_artists WHERE base_artist_name = %(base_art)s))
                 ON CONFLICT (artist_name) DO NOTHING;''', {'base_art':base_art_name, 'art':art_name}
     alb_add = []
     song_add = []
     for alb_name, alb in art.items():
+        #add or ignore album
         add = '''INSERT INTO albums (album_name, base_artist_id, artist_id) VALUES
                     (%(alb)s,
                     (SELECT base_artist_id FROM artists WHERE artist_name = %(art)s),
                     (SELECT artist_id FROM artists WHERE artist_name = %(art)s))
                     ON CONFLICT (album_name, artist_id, base_artist_id) DO NOTHING;''', {'art':art_name,'alb':alb_name}
         alb_add.append(add)
-        #MIGHT MAKE A CHANGE HERE TO PREVENT DUPLICATE SONGS BEING ENTERED BY SAME ARTIST
+        #add a song
         for sng_name, sng in alb.items():
             add = '''WITH base_art_id AS (SELECT base_artist_id FROM artists WHERE artist_name = %(art)s),
                     art_id AS (SELECT artist_id FROM artists WHERE artist_name = %(art)s)
@@ -112,6 +113,7 @@ def add_songs(conn, base_art_name, art_name, art):
     conn.commit()
 
 #this one is faster, only do one at a time
+#also only returns ong to lyrics dic
 def percise_pull(conn, art, alb=False, song=False):
     add = []
     if not song and not alb:
@@ -154,20 +156,25 @@ def update_art_dic(art_dic, query, base_artist, use_ind_artists):
     album_name_q = query['album_name']
     song_name_q = query['song_name']
     song_lyrics_q = query['song_lyrics']
-
+    #if artist is there, use an update
     if artist_name_q in art_dic.keys():
+        #all albs already there
         albs = art_dic[artist_name_q]
+        #if alb already there, just add song
         if album_name_q in albs.keys():
             albs[album_name_q][song_name_q] = song_lyrics_q
         else:
+            #otherwise add album name with song
             albs[album_name_q] = {song_name_q:song_lyrics_q}
+        #update the artist dic with updated album
         art_dic[artist_name_q].update(albs)
     else:
+        #if there artist isn't there, create artist, with alb and song
         art_dic[artist_name_q] = {album_name_q:{song_name_q:song_lyrics_q}}
     return art_dic
 
 #this one is easier/more general but slower than first
-#i map using the db artist name
+#i map using the db artist name or base artist. It feeds into update art dic each song find
 def adv_pull(conn, artist_list = [''], album_list = [''], song_list = [''], use_ind_artists=False):
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     queries = {}
@@ -175,6 +182,8 @@ def adv_pull(conn, artist_list = [''], album_list = [''], song_list = [''], use_
         art_queries = {}
         for alb in album_list:
             for sng in song_list:
+                #trys every artist, with every album and every song, if pull finds something runs update art dic
+                #I use '' as a placeholder as it will still trigger for loop but won't filter
                 song_pull = '''SELECT artist_name, album_name, song_name, song_lyrics FROM songs
                         JOIN artists ON artists.artist_id = songs.artist_id
                         JOIN albums ON albums.album_id = songs.album_id
@@ -209,9 +218,10 @@ def bulk_load(conn, new_eds = []):
 #two quick and easy functions for loading my artist files
 #also helps that I won't need the DB everywhere
 def art_save(arts):
-	for nm, aobj in arts.items():
-		with open('art_objs/%s.pkl'%nm, 'wb') as output:
-			pic.dump(aobj, output, pic.HIGHEST_PROTOCOL)
+    for nm, aobj in arts.items():
+        with open('art_objs/%s.pkl'%nm, 'wb') as output:
+            pic.dump(aobj, output, pic.HIGHEST_PROTOCOL)
+            print('Saved %s!'%nm)
 
 def art_load(nms = set()):
 	ret_dic = {}
