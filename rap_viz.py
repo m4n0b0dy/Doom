@@ -395,10 +395,10 @@ class verse_graph():
         #finally reset our verse lines to updated lines
         self.ver_as_lines = optimized_lines
         #and log changes
-        print('Changed '+str(change_count)+' sylbs!')
-        text_file = open('opto_log_'+self.song_name+'.txt', 'w')
-        text_file.write(opto_log)
-        text_file.close()
+        print('Changed %i sylbs!'%change_count)
+        if change_count > 0:
+            with open('opto_log_%s.txt'%self.song_name.lower().replace(' ','_'), 'w') as f:
+                 f.write(opto_log)
     
     #create a color dic corresponding to used vowel sounds
     def colorize_vowels(self, match_type='near'):

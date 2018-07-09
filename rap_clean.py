@@ -103,8 +103,6 @@ class song():
                       'outro':'\[.*outro.*\]',
                       'chorus':'(\[.*chorus.*\]|\(.*chorus.*\))',
                       'verse':'(\[.*verse.*|.*bridge.*\]|\(.*verse.*|.*bridge.*\))',
-                      #'[]':'\[(?!\[.*intro.*\]|\[.*outro.*\]|\[.*chorus.*\]|\[.*verse.*\]|\[.*bridge.*\]).*\]',
-                      #quick testing was very promising of this one
                       '[]':'\[(?!.*chorus.*|.*verse.*|.*bridge.*|.*intro.*|.*outro.*).*\]',
                       '{}':'\{(.*?)\}',
                       '\n':'\n',
@@ -134,9 +132,6 @@ class song():
                 #seg_type here is used as an edge case when later adding in verses matched via artist name
                 seg_type = ext
                 #specialized check if an artist is saying lyric and immideitely add to verse list
-
-                #HATE that I have to add this, maybe revist later
-                #low_mtch = match.group().lower()
                 #if low_mtch[1:-1] in COMPLETE_RAPPERS or 'verse' in low_mtch or 'bridge' in low_mtchor 'intro' in low_mtch or 'outro' in low_mtch:
                 if match.group().lower()[1:-1] in COMPLETE_RAPPERS:
                     seg_type = 'verse'
