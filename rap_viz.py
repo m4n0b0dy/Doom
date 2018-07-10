@@ -397,7 +397,7 @@ class verse_graph():
         #and log changes
         print('Changed %i sylbs!'%change_count)
         if change_count > 0:
-            with open('opto_log_%s.txt'%self.song_name.lower().replace(' ','_'), 'w') as f:
+            with open('optos/opto_log_%s.txt'%self.song_name.lower().replace(' ','_'), 'w') as f:
                  f.write(opto_log)
     
     #create a color dic corresponding to used vowel sounds
@@ -456,5 +456,5 @@ class verse_graph():
         for vwl, v_count in dict(Counter(every_vowel)).items():
             self.base_html=self.base_html.replace('%%'+vwl+'%%', str(v_count))
         #write to file
-        with open('%s_colorized.html'%self.song_name.lower().replace(' ','_'), 'w') as f:
+        with open('colorizations/%s_colorized.html'%self.song_name.lower().replace(' ','_'), 'w') as f:
             f.write(self.base_html.replace('margin-right:-7.4px;', 'margin-right:0px;'))

@@ -141,7 +141,9 @@ class song():
                     match_list.append((match.group(), (match.start(), match.start()+len(match.group()))))
                 
                 #set mentioned earlier determines what segments will be used to construct actual song
-                if seg_type in ['verse', 'chorus', 'intro', 'outro']:
+                #ATTEMPT AT EXTRA NON VERSE WORDS INSIDE MY VERSE OBJECTS
+                if seg_type in ['verse', 'chorus', 'intro', 'outro', '[]']:
+                #original > if seg_type in ['verse', 'chorus', 'intro', 'outro']:
                     extra_segs = extra_segs|{((seg_type, match.group()),(match.start(), match.start()+len(match.group())))}
             
             #now we all the mathces to the list of matching regex labels (verse, chorus, intro, etc.)
