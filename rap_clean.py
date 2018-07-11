@@ -75,6 +75,10 @@ class text_segment():
     def gen_content(self, raw_text, next_start):
         self.content = raw_text[self.end:next_start]
 
+#run word dictionary to store temp word types
+#fix lower so you don't need to store as lower
+#^ adjust accordingly in rap viz
+#build/store line types here as well
 class verse(text_segment):
     def split_on_word(self):
         words = re.sub("[^0-9a-zA-Z\']+", ' ', self.content).lower()
