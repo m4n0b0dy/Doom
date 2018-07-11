@@ -11,9 +11,6 @@ from collections import Counter
 from random import shuffle
 from IPython.core.display import display, HTML
 from difflib import get_close_matches
-PYPHEN_DIC = pyphen.Pyphen(lang='en')
-CMU_DICT = cmudict.dict()
-CMU_KEYS = set(CMU_DICT.keys())
 RND = 3
 
 def gen_plot(typ, traces, arts, b):
@@ -175,13 +172,6 @@ def unique_count_to_length(artist_obj_list, all_feat_artist=False, by_alb=False)
 	fig = go.Figure(data=traces, layout=layout)
 	offline.iplot({'data': traces, 'layout': layout})
 
-def flatten(container):
-    for i in container:
-        if isinstance(i, (list,tuple)):
-            for j in flatten(i):
-                yield j
-        else:
-            yield i
 #keep these as it just returns a verse
 def verse_search(artist_obj, song_name, verse_number=0):
     for song_obj in artist_obj.songs:
@@ -190,144 +180,7 @@ def verse_search(artist_obj, song_name, verse_number=0):
             return song_obj.uniq_art_verses[verse_number]
     print("Couldn't Find: "+song_name)
     return None
-#used to hold and breakdown words
-class word():
-    #deconstruct word into vowel sounds and sylbl sounds and match them
-    def __init__(self, text):
-        self.text = re.sub("'",'', text)
-        if self.text.isdigit():
-            #this expression is used when returning unknown, needed for later
-            self.found_text, self.same_vowel_sounds, self.matches = None, ['unk'], list(zip([self.text], ['unk']))
-            return None
-        
-        #found text will always be the word or guess at what the word is
-        self.found_text = self.text.lower()
-        #all found words serves as all possible matches for known or unknown words
-        self.all_found_words = set([self.found_text])
-        
-        if self.found_text not in CMU_KEYS:
-            self.all_found_words = get_close_matches(self.found_text, CMU_KEYS, n=5)
-            if not self.all_found_words:
-                print('Error with '+self.text)
-                self.found_text, self.same_vowel_sounds, self.matches = None, ['unk'], list(zip([self.text], ['unk']))
-                return None
-            self.found_text = self.all_found_words[0]
-            #the best and nearest match contains similar number of chars as word, opto later helps with this
-            for fnd_word in self.all_found_words:
-                if len(fnd_word)>=len(self.text):
-                    self.found_text = fnd_word
-                    break
-                    
-        #first attempt at sylbl matching. Use self.text because there's no gain to splitting the wrong word
-        self.sylbl_sounds = PYPHEN_DIC.inserted(self.text).split('-')
-        #first attempt at vowel matching using first vowel config
-        self.vowel_sounds = list(filter(re.compile(r'[aeiou]+', re.IGNORECASE).match, CMU_DICT[self.found_text][0]))
-        #this will be used to assign a current vowel config if there's a better match
-        #and store other words/vowel configs later to find the most appropriate during sylbl searching and optoing
-        matched = False
-        all_vowel_sounds = []
-        for found_word in self.all_found_words:
-            for mtch in CMU_DICT[found_word]:
-                #expression pulls out vowel sounds from match
-                mtch_vowel_sounds = list(filter(re.compile(r'[aeiou]+', re.IGNORECASE).match, mtch))
-                #use list to maintain order (everything is ordered from CMU/get_close_matches)
-                all_vowel_sounds.append(tuple(mtch_vowel_sounds))
-                #if it matches sylbl_sounds use the first match as current vowel conf
-                if len(mtch_vowel_sounds) == len(self.sylbl_sounds) and not matched:
-                    self.vowel_sounds = mtch_vowel_sounds
-                    matched = True
-        
-        #if they aren't equal aka no break try my own splitting algo - resets self.sylbl_sounds if it finds a better match
-        dex = 0
-        while len(self.vowel_sounds)!=len(self.sylbl_sounds) and dex!=len(all_vowel_sounds):
-            #want to run this for all possible vowel combos as thoroughly possible
-            #using self.text allows us to print the true text, with the found texts match
-            word.my_split(self, self.text, all_vowel_sounds[dex])
-            dex+=1
-        
-        #only use these in opto (only want matching vowel sounds)
-        self.same_vowel_sounds = set([config for config in all_vowel_sounds if len(config)==len(self.sylbl_sounds)])
-        word.sylbl_match(self)
-      
-    def my_split(self, text_to_split, vowel_config, ap='', ap_num=False):
-        vowels = 4
-        sylbl_sound_try = []
-        #test by segmented words on {,4} sylbs, then {,3}, then {,2}, then {,1}, %%% is for my special cases which come later
-        while len(vowel_config)!=len(sylbl_sound_try) and vowels>0:
-            sylbl_sound_try = re.findall(r'(%%%|[^aeiouy%]*[aeiouy]{,'+str(vowels)+'}[^aeiouy%]*)', text_to_split, re.IGNORECASE)
-            sylbl_sound_try = list(filter(None, sylbl_sound_try))
-            vowels-=1
-        #this is after running spec_split, ap = the special text, ap_num indicates how many  - this is for 0 sylbl
-        if ap_num == 0 and ap != '':
-            #find temp palceholder %%%
-            found = sylbl_sound_try.index('%%%')
-            #if it's the first sylbl add to start of second
-            if found == 0:
-                sylbl_sound_try[1] = ap+sylbl_sound_try[1]
-            #otherwise add to previous sylbl
-            else:
-                sylbl_sound_try[found-1] = sylbl_sound_try[found-1]+ap
-            sylbl_sound_try.remove('%%%')
-        #for 1 sylbl spec cases, simply replace %%% with ap
-        elif ap_num == 1 and ap != '':
-            sylbl_sound_try = [ap if mtch=='%%%' else mtch for mtch in sylbl_sound_try]
-            
-        #check if we found the match (this runs before and after spec_split)
-        if len(vowel_config)==len(sylbl_sound_try):
-            self.sylbl_sounds = sylbl_sound_try
-            return
-        
-        #triggers if we haven't run spec_split yet to prevent infinite recursive loop
-        elif not ap_num and ap == '':
-            #dictionary of special split types and their sylbl count - subject to change
-            reg_exs = {#silent edge cases (de, te, le, ey, plurals, past tense) at the end of word
-                        r'.*?(e[sd]|[^aeiouy][ey])$':0,
-                        #1 sylbl edge cases anywhere in word
-                        r'.*?([^aeiouy]*eve)*.*':1,
-                        #1 sylbl edge cases at the end of a word
-                        r'.*?(tion*)$':1}
-            #feed them into spec_split
-            for reg_ex, sylbl_count in reg_exs.items():
-                word.spec_split(self, vowel_config, reg_ex, sylbl_count)
-                #if succesful break out of for loop
-                if len(vowel_config)==len(self.sylbl_sounds):
-                    #must break here because earlier return (with assignment) just goes back to spec_split and keeps running this for loop
-                    break
 
-    #this is used for known special splitting for 0 or 1 sylbl sounds using unique vowel combos
-    def spec_split(self, cur_vowel_config, regex_end, ap_syls):
-        #using self.text allows us to print the true text, with the found texts match
-        matched = re.match(regex_end, self.text, re.IGNORECASE)
-        if matched:
-            if matched.group(1):
-                matched = matched.group(1)
-                rep_matched = self.text.replace(matched,'%%%')
-                word.my_split(self, rep_matched, cur_vowel_config, ap=matched, ap_num=ap_syls)
-                
-    #this function matches vowel sylbls to word sylbls for colorizing
-    def sylbl_match(self):
-        self.matches = list(zip(self.sylbl_sounds, ['unk']*len(self.sylbl_sounds)))
-        if len(self.sylbl_sounds) == len(self.vowel_sounds):
-            self.matches = list(zip(self.sylbl_sounds, self.vowel_sounds))
-#mainly a container for words and meta word data
-class line():
-    def __init__(self, raw_text):
-        words = re.sub("[^0-9a-zA-Z\']+", ' ', raw_text)
-        self.words = list(filter(None, words.split(' ')))
-        self.word_objs = [word(wrd) for wrd in self.words]
-        line.make_line_attr(self)
-        
-    def make_line_attr(self):
-        self.vowel_sounds = []
-        self.all_cmu_vowel_sounds = []
-        self.word_to_vowels = []
-        for cur_wrd in self.word_objs:
-            #used in color dictionary creation
-            self.vowel_sounds.extend(list(zip(*cur_wrd.matches))[1])
-            #this is for the viz
-            self.word_to_vowels.append(cur_wrd.matches)            
-            #this will be used in optimization
-            self.all_cmu_vowel_sounds.extend(flatten(flatten(cur_wrd.same_vowel_sounds)))
 #used in both vizualizing verses and optoing sylbl matching
 class verse_graph():
     #these are used in opto and colorizing
@@ -336,7 +189,9 @@ class verse_graph():
     def __init__(self, verse_obj, artist_name, song_name):
         self.artist_name = artist_name
         self.song_name = song_name
-        self.ver_as_lines = [line(line_obj) for line_obj in verse_obj.all_lines] -- can make this change from rap clean changes
+        #self.ver_as_lines = [line(line_obj) for line_obj in verse_obj.all_lines] -- can make this change from rap clean changes
+        #this is all we need from verse now
+        self.ver_as_lines = verse_obj.ver_as_lines
         self.org_ver_as_lines = self.ver_as_lines
             
     def opto_matches(self, pop=False, exc_line=False, opto_type='exact'):
