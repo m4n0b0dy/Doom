@@ -253,7 +253,7 @@ class verse(text_segment):
                 cur_line = []
             else:
                 cur_line.append(self.dic_word_objs[wrd])
-        self.all_words = filter(lambda t: '\n' in t, self.all_words)
+        self.all_words = [wrd for wrd in self.all_words if wrd != '\n']
 
     def split_on_stem(self):
         stemmer = SnowballStemmer("english")
