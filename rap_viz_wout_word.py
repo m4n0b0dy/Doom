@@ -5,12 +5,10 @@ import re
 import plotly.offline as offline
 import plotly.figure_factory as ff
 import plotly.graph_objs as go
-from nltk.corpus import cmudict
-import pyphen
 from collections import Counter
 from random import shuffle
 from IPython.core.display import display, HTML
-from difflib import get_close_matches
+from rap_clean_w_word import *
 RND = 3
 
 def gen_plot(typ, traces, arts, b):
@@ -181,6 +179,21 @@ def verse_search(artist_obj, song_name, verse_number=0):
     print("Couldn't Find: "+song_name)
     return None
 
+#mainly a container for words and meta word data
+class line():
+    def __init__(self, word_objs):
+        self.word_objs = word_objs
+        self.vowel_sounds = []
+        self.all_cmu_vowel_sounds = []
+        self.word_to_vowels = []
+        for cur_wrd in self.word_objs:
+            #used in color dictionary creation
+            self.vowel_sounds.extend(list(zip(*cur_wrd.matches))[1])
+            #this is for the viz
+            self.word_to_vowels.append(cur_wrd.matches)            
+            #this will be used in optimization
+            self.all_cmu_vowel_sounds.extend(flatten(flatten(cur_wrd.same_vowel_sounds)))
+
 #used in both vizualizing verses and optoing sylbl matching
 class verse_graph():
     #these are used in opto and colorizing
@@ -189,9 +202,9 @@ class verse_graph():
     def __init__(self, verse_obj, artist_name, song_name):
         self.artist_name = artist_name
         self.song_name = song_name
-        #self.ver_as_lines = [line(line_obj) for line_obj in verse_obj.all_lines] -- can make this change from rap clean changes
-        #this is all we need from verse now
-        self.ver_as_lines = verse_obj.ver_as_lines
+        #double list comprehension biiih  -- this prdouced one list, I want list of lists
+        #self.ver_as_lines = [verse_obj.word_objs[wrd] for cur_line in verse_obj.all_words_by_line for wrd in cur_line]
+        self.ver_as_lines = [line([verse_obj.word_objs[wrd] for wrd in cur_line]) for cur_line in verse_obj.all_words_by_line]
         self.org_ver_as_lines = self.ver_as_lines
             
     def opto_matches(self, pop=False, exc_line=False, opto_type='exact'):
@@ -245,8 +258,8 @@ class verse_graph():
             #set the lines word objects equal to our new words
             line_obj.word_objs = new_word_objs
             #remake the line attributes with this new word list
-            line_obj.make_line_attr()
-            optimized_lines.append(line_obj)
+            new_line_obj = line(line_obj.word_objs)
+            optimized_lines.append(new_line_obj)
             
         #finally reset our verse lines to updated lines
         self.ver_as_lines = optimized_lines

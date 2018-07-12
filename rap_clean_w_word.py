@@ -7,12 +7,14 @@ from nltk.corpus import stopwords
 from nltk.stem import *
 from difflib import SequenceMatcher
 from difflib import get_close_matches
+from nltk.corpus import cmudict
+import pyphen
 PYPHEN_DIC = pyphen.Pyphen(lang='en')
 CMU_DICT = cmudict.dict()
 CMU_KEYS = set(CMU_DICT.keys())
 
 #only change run if DB has changed
-run = True
+run = False
 if run:
      #try to load our complete rappers fresh from db, but if it's not there just take the most recent picle file
     try:
@@ -197,21 +199,6 @@ class word():
         if len(self.sylbl_sounds) == len(self.vowel_sounds):
             self.matches = list(zip(self.sylbl_sounds, self.vowel_sounds))
 
-#mainly a container for words and meta word data
-class line():
-    def __init__(self, word_objs):
-        self.word_objs = word_objs
-        self.vowel_sounds = []
-        self.all_cmu_vowel_sounds = []
-        self.word_to_vowels = []
-        for cur_wrd in self.word_objs:
-            #used in color dictionary creation
-            self.vowel_sounds.extend(list(zip(*cur_wrd.matches))[1])
-            #this is for the viz
-            self.word_to_vowels.append(cur_wrd.matches)            
-            #this will be used in optimization
-            self.all_cmu_vowel_sounds.extend(flatten(flatten(cur_wrd.same_vowel_sounds)))
-
 class text_segment():
     def __init__(self, typ, label, start, end):
         self.typ = typ
@@ -221,39 +208,22 @@ class text_segment():
     def gen_content(self, raw_text, next_start):
         self.content = raw_text[self.end:next_start]
 
-#run word dictionary to store temp word types
-#fix lower so you don't need to store as lower
-#^ adjust accordingly in rap viz
-#build/store line types here as well
-#MADE LOWER CHANGE, ADJUSTED IN RAP VIZ AS WELL
-#needs testing
-#can add easier analtrics attribuest later like sylbl distr, sentiment, etc.
 class verse(text_segment):
-    def split_on_word(self):
-        words = re.sub("[^0-9a-zA-Z\'\n]+", ' ', self.content)
-        words = words.split(' ')
-        #no need for lower here
-        self.all_words = list(filter(None, words))
+	#simple way of getting verse as linse, words, unique words and a sylbl dic for low storage
+    def split_to_words(self):
+        self.all_words_by_line, self.all_words = [], []
         self.unique_words = set()
-        self.dic_word_objs = {}
-        #want unique words to capture word in purest form for making word object
-        for wrd in set(self.all_words)-{'\n'}:
-            #want to maintain text so no lower
-            self.dic_word_objs[wrd] = word(wrd)
-            #want true uniques so use lower
-            self.unique_words = self.unique_words|set(wrd.lower())
-    #this now holds what was in verse_graph
-    def split_on_line(self):
-        self.ver_as_lines = []
-        cur_line = []
-        for wrd in self.all_words:
-            if wrd == '\n':
-            	#holds line objects
-            	self.ver_as_lines.append(line(cur_line))
-                cur_line = []
-            else:
-                cur_line.append(self.dic_word_objs[wrd])
-        self.all_words = [wrd for wrd in self.all_words if wrd != '\n']
+        self.word_objs = {}
+        for cur_line in list(filter(None, self.content.split('\n'))):
+            ap_line = []
+            words = re.sub("[^0-9a-zA-Z\']+", ' ', cur_line).split(' ')
+            words = list(filter(None, words))
+            self.all_words.extend(words)
+            self.all_words_by_line.append(words)
+            for cur_word in words:
+                self.word_objs[cur_word] = word(cur_word)
+                #need this to be lower for true count
+                self.unique_words = self.unique_words|{cur_word.lower()}
 
     def split_on_stem(self):
         stemmer = SnowballStemmer("english")
@@ -263,8 +233,7 @@ class verse(text_segment):
         self.unique_stemmed_words = set(self.all_stemmed_words)
     
     def run_all_split(self):
-        self.split_on_word()
-        self.split_on_line()
+        self.split_to_words()
         #self.split_on_stem()
 
 class song():
@@ -420,8 +389,8 @@ def construct_albums(albs_dic, artist_nm):
         album_obj = album(artist_nm, alb_name, song_objs)
         albums.append(album_obj)
     return albums
-
-def construct_artists(conn, art_list = [''], alb_list = [''], sng_list = [''], use_ind_artists=False):
+#temp album searches
+def construct_artists(conn, art_list = [''], alb_list = [''], sng_list = ['favorite'], use_ind_artists=False):
     record_pull = adv_pull(conn, art_list, alb_list, sng_list, use_ind_artists)
     artist_works = []
     for main_artist, db_records in record_pull.items():
