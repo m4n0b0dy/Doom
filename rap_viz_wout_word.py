@@ -1,6 +1,5 @@
 #crazies library
 from statistics import mean, median
-from rap_clean import verse
 import re
 import plotly.offline as offline
 import plotly.figure_factory as ff

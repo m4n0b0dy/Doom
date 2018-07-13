@@ -341,7 +341,7 @@ class song():
 #simple function to pull song info
 def flatten_songs(song_list):
     #ret_segs, ret_verses, ret_uniq_art_verses = [], [], []
-    ret_verses, ret_uniq_art_verses = [], [], []
+    ret_verses, ret_uniq_art_verses = [], []
     for cur_song in song_list:
         #ret_segs = ret_segs + cur_song.segments
         ret_verses = ret_verses + cur_song.verses
@@ -390,7 +390,7 @@ def construct_albums(albs_dic, artist_nm):
         albums.append(album_obj)
     return albums
 #temp album searches
-def construct_artists(conn, art_list = [''], alb_list = [''], sng_list = ['favorite'], use_ind_artists=False):
+def construct_artists(conn, art_list = [''], alb_list = [''], sng_list = [''], use_ind_artists=False):
     record_pull = adv_pull(conn, art_list, alb_list, sng_list, use_ind_artists)
     artist_works = []
     for main_artist, db_records in record_pull.items():
@@ -400,4 +400,5 @@ def construct_artists(conn, art_list = [''], alb_list = [''], sng_list = ['favor
         else:
             #key error means it didn't find anything for that artist
             artist_works.append(artist(main_artist, construct_albums(db_records[main_artist], main_artist)))
+        print('Made %s object!'%main_artist)
     return artist_works
