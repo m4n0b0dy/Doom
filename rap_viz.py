@@ -1,4 +1,3 @@
-#crazies library
 from statistics import mean, median
 import re
 import plotly.offline as offline
@@ -74,6 +73,7 @@ def unique_verses_bar(artist_obj_list, all_feat_artist=False, verse_count = 10):
 			else:
 				ver_iter = sng.uniq_art_verses
 			for v_dex, v in enumerate(ver_iter):
+				#store the ratio, verse content, length, song name and verse number for the viz
 				all_verses.append((len(v.unique_words)/len(v.all_words), v.content, len(v.all_words),sng.name, v_dex))  
 		#outside of for loop to get all artist work not all song
 		all_verses = sorted(all_verses, reverse=True)[:verse_count]
@@ -83,6 +83,7 @@ def unique_verses_bar(artist_obj_list, all_feat_artist=False, verse_count = 10):
 		content = []
 		#sort this again the other way I guess for desc looks
 		for dex, a_v in enumerate(sorted(all_verses)):
+			#plotly is in html so do a little html formatting/content creation
 			con = re.sub('\n+', '<br>',a_v[1]).rstrip('<br>').lstrip('<br>')
 			xs.append(a_v[2])
 			content.append(con+'<br>Song: "'+a_v[3]+'" - Verse: #'+str(a_v[4])+' - Score:('+str(round(a_v[0], RND))+')')
@@ -123,6 +124,7 @@ def unique_count_to_length(artist_obj_list, all_feat_artist=False, by_alb=False)
 		xs = []
 		ys = []
 		song_names = []
+		#iterate by album in case we are coloring by albm
 		for alb in art.albums:
 			for sng in alb.songs:
 				one_song_uniqs = set()
@@ -163,14 +165,14 @@ def unique_count_to_length(artist_obj_list, all_feat_artist=False, by_alb=False)
 						mode = 'markers',
 						hoverinfo='text'))
 
-	layout = go.Layout(title='Avg Unique Word Length by Count by Song',
+	layout = go.Layout(title='Avg Unique Word Length by Count per Song',
 	xaxis=dict(title='Avg Unique Word Length'),
 	yaxis=dict(title='Unique Word Count'),
 	hovermode='closest')
 	fig = go.Figure(data=traces, layout=layout)
 	offline.iplot({'data': traces, 'layout': layout})
 
-#keep these as it just returns a verse
+#searches an artists work and pulls a song and verse number
 def verse_search(artist_obj, song_name, verse_number=0):
     for song_obj in artist_obj.songs:
         if song_name==song_obj.name and song_obj.uniq_art_verses:
@@ -196,19 +198,21 @@ class line():
 
 #used in both vizualizing verses and optoing sylbl matching
 class verse_graph():
-    #these are used in opto and colorizing
+    #these are used in opto and colorizing to slice vowel sounds
     match_dic = {'broad':(0,1),'near':(0,-1),'exact':(None,None)}
     
     def __init__(self, verse_obj, artist_name, song_name):
         self.artist_name = artist_name
         self.song_name = song_name
-        #double list comprehension biiih  -- this prdouced one list, I want list of lists
+        #list of list for our lines
         self.ver_as_lines = [line([verse_obj.word_objs[wrd] for wrd in cur_line]) for cur_line in verse_obj.all_words_by_line]
+        #deep copies only so I have the original objects for restoration each time I opto
         self.org_ver_as_lines = deepcopy(self.ver_as_lines)
             
     def opto_matches(self, pop=False, exc_line=False, opto_type='exact'):
         strt,end = verse_graph.match_dic[opto_type]
         self.ver_as_lines = deepcopy(self.org_ver_as_lines)
+        #pop is the # of lines before and after to use for dic
         if not pop:
             pop=int(len(self.ver_as_lines)/2)
         optimized_lines = []
@@ -217,7 +221,7 @@ class verse_graph():
         for dex, line_obj in enumerate(self.ver_as_lines):
             #this picks the lines within population before current line after current line
             nearby_lines = self.ver_as_lines[max(0,dex-pop):dex+pop+1]
-            #deleting selected current line
+            #deleting selected current line if exc_line argument
             if exc_line:
                 del nearby_lines[-pop-1]
             all_nearby_vowels = []
@@ -225,7 +229,7 @@ class verse_graph():
                 #this creates a list of all vowel sounds (broad, near, or exact) within the nearby_lines population
                 all_nearby_vowels.extend([all_v[strt:end] for all_v in nearby_line.all_cmu_vowel_sounds])
             count_nearby_vowels = dict(Counter(all_nearby_vowels))
-            #will use that count_nearby_vowels to compare scores when picking new vowel soudn
+            #will use that count_nearby_vowels to compare scores when picking new vowel sounds
             new_word_objs=[]
             for wrd_dex, wrd in enumerate(line_obj.word_objs):
                 #only change if there are alternate vowel soundings and we know the current vowel sound
@@ -307,7 +311,7 @@ class verse_graph():
                 
             legend+='<mark class="'+vowel+'">'+vowel+'<span>(Count:%%'+vowel+'%%)</span></mark> '
         self.base_html+='</style><body><h1>Verse breakdown for '+self.song_name+' by '+self.artist_name+'</h1><h2>Vowel Color Legend<br></h2>'+legend+'<br><br>'
-        #make legend
+        #used to make legend
         every_vowel = []
         #make core html
         for line_obj in self.ver_as_lines:

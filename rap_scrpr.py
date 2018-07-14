@@ -1,12 +1,11 @@
-#import RAP_MASTER_LIB
 import json
 import re
 from bs4 import BeautifulSoup
 import urllib
 import time
-from rap_db import *
-
-def pull_links(page_link, app = '', sng_scr=False):
+from rap_db import pull_link_from_art
+#I don't like using try excepts but for scraping you don't want hte whole thing to fail on an anamoloy
+def pull_links(page_link, app, sng_scr=False):
 	ret_list = []
 	try:
 		loaded = urllib.request.urlopen(page_link).read()
@@ -45,7 +44,7 @@ def song_scrape(links, slept=1):
 	song_text = []
 	for song in links:
 		#was getting 403 errors from bad pages and effecting good pages
-		#do this just in case so we don't lose the whole scrape
+		#do this just in case so don't lose the whole scrape
 		try:
 			#load and parse lytics page
 			page = urllib.request.urlopen(song).read()
@@ -57,7 +56,6 @@ def song_scrape(links, slept=1):
 				lyrics_page = str(text)
 			#add text without all of the links	
 			song_text.append(re.sub('<[^>]*>', '', lyrics_page))
-			#print('Succesfully scraped: '+song)
 		except:
 			print("Couldn't scrape: "+song)
 		#sleep to not overrun server
@@ -72,7 +70,7 @@ def raw_clean(song_texts, scrape_artist):
 	count_clean = 0
 	for song in song_texts:
 		try:
-			#sometimes artist is written incorrectly dur
+			#sometimes artist is written incorrectly
 			try:
 				artist = re.search(r"Artist: (.*?)\n", song).group(1)
 			except:
@@ -96,7 +94,7 @@ def raw_clean(song_texts, scrape_artist):
 			#again, want to use try excepts for indivdual artist
 			song_data['raw_song_'+str(count_raw)] = song
 			count_raw += 1
-	print(str(count_raw)+" songs cleaned raw")
+	print(str(count_raw)+" songs cleaned raw (not properly formatted)")
 	print(str(count_clean)+" songs cleaned clean")
 	return song_data
 
@@ -104,10 +102,10 @@ def raw_clean(song_texts, scrape_artist):
 def scrape_multi_artists(conn, artist_list):
     ret_list = []
     for art in artist_list:
-        page = pull_link(conn, art)
+        page = pull_link_from_art(conn, art)
         scraped_songs = raw_clean(song_scrape(song_links(page)), art)
         art_file = art.replace(' ', '_').lower()
-        #back up scrape after clean
+        #back up scrape to json after clean
         with open('json_lyrics/'+art_file+'_raw.json', 'w') as outfile:
             json.dump(scraped_songs, outfile)
         print(art_file+'_raw.json made!')

@@ -1,4 +1,3 @@
-#import RAP_MASTER_LIB
 import json
 import psycopg2 as pg2
 import psycopg2.extras
@@ -75,7 +74,7 @@ def add_base(conn, base_art_name):
     conn.commit()
 
 #so an issue here is when another artist that is featured with an artist that has already been loaded is loaded,
-#it tries to load that base ID but finds that there's two base artist names for that one artist name used inquery
+#it tries to load that base ID but finds that there's two base artist names for that one artist name used in query
 
 #add to database meta stats when you have em
 def add_songs(conn, base_art_name, art_name, art):
@@ -94,6 +93,7 @@ def add_songs(conn, base_art_name, art_name, art):
                     ON CONFLICT (album_name, artist_id, base_artist_id) DO NOTHING;''', {'art':art_name,'alb':alb_name}
         alb_add.append(add)
         #add a song
+        #think this can be tightend up, nbd for now but could be faster/cleaner with multi varaible assignment
         for sng_name, sng in alb.items():
             add = '''WITH base_art_id AS (SELECT base_artist_id FROM artists WHERE artist_name = %(art)s),
                     art_id AS (SELECT artist_id FROM artists WHERE artist_name = %(art)s)
@@ -112,8 +112,8 @@ def add_songs(conn, base_art_name, art_name, art):
     cur.close()
     conn.commit()
 
-#this one is faster, only do one at a time
-#also only returns ong to lyrics dic
+#this one is faster, only does one song at a time
+#also only returns artist to song to lyrics dic rather than artist to album to song to lyrics
 def percise_pull(conn, art, alb=False, song=False):
     add = []
     if not song and not alb:
@@ -147,7 +147,7 @@ def percise_pull(conn, art, alb=False, song=False):
     return ret_dic
 
 def update_art_dic(art_dic, query, base_artist, use_ind_artists):
-    #determinse if we group by main artist or ind artists
+    #determines if we group by main artist or ind artists
     if use_ind_artists:
         artist_name_q = query['artist_name']
     else:
@@ -176,6 +176,7 @@ def update_art_dic(art_dic, query, base_artist, use_ind_artists):
 #this one is easier/more general but slower than first
 #i map using the db artist name or base artist. It feeds into update art dic each song find
 def adv_pull(conn, artist_list = [''], album_list = [''], song_list = [''], use_ind_artists=False):
+    #special way of pulling that returns dict
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     queries = {}
     for art in artist_list:
@@ -197,7 +198,7 @@ def adv_pull(conn, artist_list = [''], album_list = [''], song_list = [''], use_
         queries[art] = art_queries
     return queries
 
-def pull_link(conn, artist_name):
+def pull_link_from_art(conn, artist_name):
     cur = conn.cursor()
     cur.execute('''SELECT artist_link from all_artist_names WHERE artist_nm = %(art)s''', {'art':artist_name})
     return 'http://ohhla.com/'+cur.fetchone()[0]
@@ -216,7 +217,6 @@ def bulk_load(conn, new_eds = []):
         print(new+" added!")
 
 #two quick and easy functions for loading my artist files
-#also helps that I won't need the DB everywhere
 def art_save(arts):
     for nm, aobj in arts.items():
         with open('art_objs/%s.pkl'%nm, 'wb') as output:

@@ -1,4 +1,3 @@
-#import RAP_MASTER_LIB
 from rap_db import *
 import re
 import psycopg2 as pg2
@@ -13,35 +12,31 @@ PYPHEN_DIC = pyphen.Pyphen(lang='en')
 CMU_DICT = cmudict.dict()
 CMU_KEYS = set(CMU_DICT.keys())
 
-#only change run if DB has changed
+#only run if DB has changed
 run = False
 if run:
-     #try to load our complete rappers fresh from db, but if it's not there just take the most recent picle file
-    try:
-        estconn = pg2.connect(database='rap_songs', user='keenan', host='localhost', password='keenan')
-        cur = estconn.cursor()
-        cur.execute('''SELECT LOWER(artist_nm) FROM all_artist_names UNION SELECT LOWER(artist_name) FROM artists;''')
-        query = cur.fetchall()
-        COMPLETE_RAPPERS = set()
-        #want all rappers listed and any rapper in list of rappers
-        for art in query:
-            full_name = art[0]
-            sep_name = re.sub('f./|f/|w/|&amp;|and|((^|\W)\()|(\)($|\W))', ',', full_name)
-            list_of_names = sep_name.split(',')
-            for name in list_of_names:
-                COMPLETE_RAPPERS = COMPLETE_RAPPERS|{name.strip()}
-        COMPLETE_RAPPERS = COMPLETE_RAPPERS - {''}
-        cur.close()
-        estconn.close()
-        #repurposing my save and load functions
-        art_save({'COMPLETE_RAPPERS':COMPLETE_RAPPERS})
-    except:
-        COMPLETE_RAPPERS = art_load(nms=['COMPLETE_RAPPERS'])['COMPLETE_RAPPERS']
+    estconn = pg2.connect(database='rap_songs', user='keenan', host='localhost', password='keenan')
+    cur = estconn.cursor()
+    cur.execute('''SELECT LOWER(artist_nm) FROM all_artist_names UNION SELECT LOWER(artist_name) FROM artists;''')
+    query = cur.fetchall()
+    COMPLETE_RAPPERS = set()
+    #want all rappers listed and any rapper in list of rappers
+    for art in query:
+        full_name = art[0]
+        sep_name = re.sub('f./|f/|w/|&amp;|and|((^|\W)\()|(\)($|\W))', ',', full_name)
+        list_of_names = sep_name.split(',')
+        for name in list_of_names:
+            COMPLETE_RAPPERS = COMPLETE_RAPPERS|{name.strip()}
+    COMPLETE_RAPPERS = COMPLETE_RAPPERS - {''}
+    cur.close()
+    estconn.close()
+    #repurposing my save and load functions
+    art_save({'COMPLETE_RAPPERS':COMPLETE_RAPPERS})
 else:
     COMPLETE_RAPPERS = art_load(nms=['COMPLETE_RAPPERS'])['COMPLETE_RAPPERS']
 
 
-#quick way to check if it's a true verse
+#quick way to check if it's a true verse, 20 charcaters and at least 12 unique words
 def check_verse(text, nec_len = 20, nec_uniq = 12):
     if len(text) < nec_len:
         return False
@@ -64,13 +59,12 @@ def find_uniq_art_vers(ar, all_ver_lst, ratio_check=.5):
 		#then make sure verse is unique
 		new_ch = True
 		for prev_ver in all_vers - {vers}:
-            #there is an "issue" that the repeated verses will never be added, however, repeated verses are usually really choruses so it kinda works
 			if SequenceMatcher(None, prev_ver.content, vers.content).ratio() > ratio_check:
 				new_ch = False
 		if art_ch and new_ch:
 			ret_vers = ret_vers|{vers}
 	return list(ret_vers)
-
+#simple and fast recursive flatten function to flatten any object
 def flatten(container):
     for i in container:
         if isinstance(i, (list,tuple)):
@@ -80,12 +74,13 @@ def flatten(container):
             yield i
 
 #used to hold and breakdown words
+#most complex of all objects/functions
 class word():
     #deconstruct word into vowel sounds and sylbl sounds and match them
     def __init__(self, text):
         self.text = re.sub("'",'', text)
         if self.text.isdigit():
-            #this expression is used when returning unknown, needed for later
+            #this expression is used when returning unknown, needed for later error prevention
             self.found_text, self.same_vowel_sounds, self.matches = None, ['unk'], list(zip([self.text], ['unk']))
             return None
         
@@ -126,7 +121,7 @@ class word():
                     self.vowel_sounds = mtch_vowel_sounds
                     matched = True
         
-        #if they aren't equal aka no break try my own splitting algo - resets self.sylbl_sounds if it finds a better match
+        #if they aren't equal aka if statement not triggered try my own splitting algo - resets self.sylbl_sounds if it finds a better match
         dex = 0
         while len(self.vowel_sounds)!=len(self.sylbl_sounds) and dex!=len(all_vowel_sounds):
             #want to run this for all possible vowel combos as thoroughly possible
@@ -134,7 +129,7 @@ class word():
             word.my_split(self, self.text, all_vowel_sounds[dex])
             dex+=1
         
-        #only use these in opto (only want matching vowel sounds)
+        #only use these in opto (only want matching length vowel sounds)
         self.same_vowel_sounds = set([config for config in all_vowel_sounds if len(config)==len(self.sylbl_sounds)])
         word.sylbl_match(self)
       
@@ -168,7 +163,7 @@ class word():
         
         #triggers if we haven't run spec_split yet to prevent infinite recursive loop
         elif not ap_num and ap == '':
-            #dictionary of special split types and their sylbl count - subject to change
+            #dictionary of special split types and their sylbl count - always subject to change/growth
             reg_exs = {#silent edge cases (de, te, le, ey, plurals, past tense) at the end of word
                         r'.*?(e[sd]|[^aeiouy][ey])$':0,
                         #1 sylbl edge cases anywhere in word
@@ -209,13 +204,12 @@ class text_segment():
         self.content = raw_text[self.end:next_start]
 
 class verse(text_segment):
-	#simple way of getting verse as linse, words, unique words and a sylbl dic for low storage
+	#simple way of getting verse as lines, words, unique words and a sylbl dic for low storage
     def split_to_words(self):
         self.all_words_by_line, self.all_words = [], []
         self.unique_words = set()
         self.word_objs = {}
         for cur_line in list(filter(None, self.content.split('\n'))):
-            ap_line = []
             words = re.sub("[^0-9a-zA-Z\']+", ' ', cur_line).split(' ')
             words = list(filter(None, words))
             self.all_words.extend(words)
@@ -263,7 +257,6 @@ class song():
         #set used later to create segments
         extra_segs = set()
         for ext, regex_command in song.regex_commands.items():
-            #this should fix the lower issue
             finder = re.compile(regex_command, re.IGNORECASE)
             match_list = []
             for match in finder.finditer(self.raw_text):
@@ -271,7 +264,6 @@ class song():
                 #seg_type here is used as an edge case when later adding in verses matched via artist name
                 seg_type = ext
                 #specialized check if an artist is saying lyric and immideitely add to verse list
-                #if low_mtch[1:-1] in COMPLETE_RAPPERS or 'verse' in low_mtch or 'bridge' in low_mtchor 'intro' in low_mtch or 'outro' in low_mtch:
                 if match.group().lower()[1:-1] in COMPLETE_RAPPERS:
                     seg_type = 'verse'
                     self.extras[seg_type].append((match.group(), (match.start(), match.start()+len(match.group()))))
@@ -280,18 +272,16 @@ class song():
                     match_list.append((match.group(), (match.start(), match.start()+len(match.group()))))
                 
                 #set mentioned earlier determines what segments will be used to construct actual song
-                #ATTEMPT AT EXTRA NON VERSE WORDS INSIDE MY VERSE OBJECTS
                 if seg_type in ['verse', 'chorus', 'intro', 'outro', '[]']:
-                #original > if seg_type in ['verse', 'chorus', 'intro', 'outro']:
                     extra_segs = extra_segs|{((seg_type, match.group()),(match.start(), match.start()+len(match.group())))}
             
             #now we all the mathces to the list of matching regex labels (verse, chorus, intro, etc.)
             self.extras[ext] = match_list
             
-        #switchs to a list, this will be used for segment creation
+        #switchs to a list sorted by place in raw text, this will be used for segment creation
         self.extra_segs = sorted(list(extra_segs), key=lambda x: x[1][0])
         
-    #this removes any of the regex formations utilized above and recalculates all the new positions
+    #this removes the full captured text of any of the regex formations utilized above and recalculates all the new positions
     def remove_and_reass(self, rems = []):
         for rem in rems:
             matches = self.extras[rem]
@@ -311,14 +301,14 @@ class song():
             #first segment
             if not self.segments:
                 seg = text_segment('[pre_text]', 'pre_text', 0, 0)
-                #can simply reference next segment here
+                #all text until next segment, ex_start
                 seg.gen_content(self.raw_text, ex_start)
                 self.segments = [seg]
             
             #create the actual segment to be appended to song
             seg = text_segment(ex_type, ex_cont, ex_start, ex_end)
             
-            #to prevent error on the last segment, use alternate end position
+            #to prevent error on the last segment, use alternate end position aka end of raw text
             if index+1 == len(self.extra_segs):
                 seg.gen_content(self.raw_text, len(self.raw_text))
             else:
@@ -338,27 +328,21 @@ class song():
             self.segments.append(seg)
         self.verses = list(filter(lambda s: isinstance(s, verse), self.segments))
         self.uniq_art_verses = find_uniq_art_vers(self.artist, self.verses)
+
 #simple function to pull song info
 def flatten_songs(song_list):
-    #ret_segs, ret_verses, ret_uniq_art_verses = [], [], []
     ret_verses, ret_uniq_art_verses = [], []
     for cur_song in song_list:
-        #ret_segs = ret_segs + cur_song.segments
         ret_verses = ret_verses + cur_song.verses
         ret_uniq_art_verses = ret_uniq_art_verses + cur_song.uniq_art_verses
-    #return ret_segs, ret_verses, ret_uniq_art_verses
     return ret_verses, ret_uniq_art_verses
 
 #album is a wrapper for holding songs, and verses, don't need it to hold song_segments but it can
-#as verse grows more complex and I segment less by album, etc, may want to get rid of this - not yet just a thought
-#^per this thought, gonna only store vereses in artist not segments
 class album():
     def __init__(self, artist, name, songs):
         self.name = name
         self.artist = artist
         self.songs = songs
-        #only gonna store verses
-        #self.segments, self.verses, self.uniq_art_verses = flatten_songs(self.songs)
         self.verses, self.uniq_art_verses = flatten_songs(self.songs)
 #aritst is similar but holds albums, songs and verses
 class artist():
@@ -366,12 +350,10 @@ class artist():
         self.name = name
         self.albums = albums
         self.songs = []
-        #self.segments = []
         self.verses = []
         self.uniq_art_verses = []
         for alb in albums:
             self.songs = self.songs + alb.songs
-            #self.segments = self.segments + alb.segments
             self.verses = self.verses + alb.verses
             self.uniq_art_verses = self.uniq_art_verses + alb.uniq_art_verses
 
