@@ -1,0 +1,6 @@
+Change #1-loc(Line:0, Word:2): Within "plated" changed "ed" from "AH0(25)" to "IH0(29)"
+Change #2-loc(Line:3, Word:5): Within "on" changed "on" from "AA1(7)" to "AO1(21)"
+Change #3-loc(Line:4, Word:0): Within "Good" changed "Good" from "UH1(3)" to "IH0(53)"
+Change #4-loc(Line:11, Word:0): Within "Coughing" changed "Cough" from "AA1(8)" to "AO1(16)"
+Change #5-loc(Line:12, Word:4): Within "that" changed "that" from "AE1(7)" to "AH0(39)"
+Change #6-loc(Line:12, Word:5): Within "saturated" changed "ed" from "AH0(39)" to "IH0(48)"

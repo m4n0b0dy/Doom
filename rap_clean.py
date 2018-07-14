@@ -7,6 +7,11 @@ from nltk.corpus import stopwords
 from nltk.stem import *
 from difflib import SequenceMatcher
 from difflib import get_close_matches
+from nltk.corpus import cmudict
+import pyphen
+PYPHEN_DIC = pyphen.Pyphen(lang='en')
+CMU_DICT = cmudict.dict()
+CMU_KEYS = set(CMU_DICT.keys())
 
 #only change run if DB has changed
 run = False
@@ -64,7 +69,135 @@ def find_uniq_art_vers(ar, all_ver_lst, ratio_check=.5):
 				new_ch = False
 		if art_ch and new_ch:
 			ret_vers = ret_vers|{vers}
-	return list(ret_vers) 
+	return list(ret_vers)
+
+def flatten(container):
+    for i in container:
+        if isinstance(i, (list,tuple)):
+            for j in flatten(i):
+                yield j
+        else:
+            yield i
+
+#used to hold and breakdown words
+class word():
+    #deconstruct word into vowel sounds and sylbl sounds and match them
+    def __init__(self, text):
+        self.text = re.sub("'",'', text)
+        if self.text.isdigit():
+            #this expression is used when returning unknown, needed for later
+            self.found_text, self.same_vowel_sounds, self.matches = None, ['unk'], list(zip([self.text], ['unk']))
+            return None
+        
+        #found text will always be the word or guess at what the word is
+        self.found_text = self.text.lower()
+        #all found words serves as all possible matches for known or unknown words
+        self.all_found_words = set([self.found_text])
+        
+        if self.found_text not in CMU_KEYS:
+            self.all_found_words = get_close_matches(self.found_text, CMU_KEYS, n=5)
+            if not self.all_found_words:
+                print('Error with '+self.text)
+                self.found_text, self.same_vowel_sounds, self.matches = None, ['unk'], list(zip([self.text], ['unk']))
+                return None
+            self.found_text = self.all_found_words[0]
+            #the best and nearest match contains similar number of chars as word, opto later helps with this
+            for fnd_word in self.all_found_words:
+                if len(fnd_word)>=len(self.text):
+                    self.found_text = fnd_word
+                    break
+                    
+        #first attempt at sylbl matching. Use self.text because there's no gain to splitting the wrong word
+        self.sylbl_sounds = PYPHEN_DIC.inserted(self.text).split('-')
+        #first attempt at vowel matching using first vowel config
+        self.vowel_sounds = list(filter(re.compile(r'[aeiou]+', re.IGNORECASE).match, CMU_DICT[self.found_text][0]))
+        #this will be used to assign a current vowel config if there's a better match
+        #and store other words/vowel configs later to find the most appropriate during sylbl searching and optoing
+        matched = False
+        all_vowel_sounds = []
+        for found_word in self.all_found_words:
+            for mtch in CMU_DICT[found_word]:
+                #expression pulls out vowel sounds from match
+                mtch_vowel_sounds = list(filter(re.compile(r'[aeiou]+', re.IGNORECASE).match, mtch))
+                #use list to maintain order (everything is ordered from CMU/get_close_matches)
+                all_vowel_sounds.append(tuple(mtch_vowel_sounds))
+                #if it matches sylbl_sounds use the first match as current vowel conf
+                if len(mtch_vowel_sounds) == len(self.sylbl_sounds) and not matched:
+                    self.vowel_sounds = mtch_vowel_sounds
+                    matched = True
+        
+        #if they aren't equal aka no break try my own splitting algo - resets self.sylbl_sounds if it finds a better match
+        dex = 0
+        while len(self.vowel_sounds)!=len(self.sylbl_sounds) and dex!=len(all_vowel_sounds):
+            #want to run this for all possible vowel combos as thoroughly possible
+            #using self.text allows us to print the true text, with the found texts match
+            word.my_split(self, self.text, all_vowel_sounds[dex])
+            dex+=1
+        
+        #only use these in opto (only want matching vowel sounds)
+        self.same_vowel_sounds = set([config for config in all_vowel_sounds if len(config)==len(self.sylbl_sounds)])
+        word.sylbl_match(self)
+      
+    def my_split(self, text_to_split, vowel_config, ap='', ap_num=False):
+        vowels = 4
+        sylbl_sound_try = []
+        #test by segmented words on {,4} sylbs, then {,3}, then {,2}, then {,1}, %%% is for my special cases which come later
+        while len(vowel_config)!=len(sylbl_sound_try) and vowels>0:
+            sylbl_sound_try = re.findall(r'(%%%|[^aeiouy%]*[aeiouy]{,'+str(vowels)+'}[^aeiouy%]*)', text_to_split, re.IGNORECASE)
+            sylbl_sound_try = list(filter(None, sylbl_sound_try))
+            vowels-=1
+        #this is after running spec_split, ap = the special text, ap_num indicates how many  - this is for 0 sylbl
+        if ap_num == 0 and ap != '':
+            #find temp palceholder %%%
+            found = sylbl_sound_try.index('%%%')
+            #if it's the first sylbl add to start of second
+            if found == 0:
+                sylbl_sound_try[1] = ap+sylbl_sound_try[1]
+            #otherwise add to previous sylbl
+            else:
+                sylbl_sound_try[found-1] = sylbl_sound_try[found-1]+ap
+            sylbl_sound_try.remove('%%%')
+        #for 1 sylbl spec cases, simply replace %%% with ap
+        elif ap_num == 1 and ap != '':
+            sylbl_sound_try = [ap if mtch=='%%%' else mtch for mtch in sylbl_sound_try]
+            
+        #check if we found the match (this runs before and after spec_split)
+        if len(vowel_config)==len(sylbl_sound_try):
+            self.sylbl_sounds = sylbl_sound_try
+            return
+        
+        #triggers if we haven't run spec_split yet to prevent infinite recursive loop
+        elif not ap_num and ap == '':
+            #dictionary of special split types and their sylbl count - subject to change
+            reg_exs = {#silent edge cases (de, te, le, ey, plurals, past tense) at the end of word
+                        r'.*?(e[sd]|[^aeiouy][ey])$':0,
+                        #1 sylbl edge cases anywhere in word
+                        r'.*?([^aeiouy]*eve)*.*':1,
+                        #1 sylbl edge cases at the end of a word
+                        r'.*?(tion*)$':1}
+            #feed them into spec_split
+            for reg_ex, sylbl_count in reg_exs.items():
+                word.spec_split(self, vowel_config, reg_ex, sylbl_count)
+                #if succesful break out of for loop
+                if len(vowel_config)==len(self.sylbl_sounds):
+                    #must break here because earlier return (with assignment) just goes back to spec_split and keeps running this for loop
+                    break
+
+    #this is used for known special splitting for 0 or 1 sylbl sounds using unique vowel combos
+    def spec_split(self, cur_vowel_config, regex_end, ap_syls):
+        #using self.text allows us to print the true text, with the found texts match
+        matched = re.match(regex_end, self.text, re.IGNORECASE)
+        if matched:
+            if matched.group(1):
+                matched = matched.group(1)
+                rep_matched = self.text.replace(matched,'%%%')
+                word.my_split(self, rep_matched, cur_vowel_config, ap=matched, ap_num=ap_syls)
+                
+    #this function matches vowel sylbls to word sylbls for colorizing
+    def sylbl_match(self):
+        self.matches = list(zip(self.sylbl_sounds, ['unk']*len(self.sylbl_sounds)))
+        if len(self.sylbl_sounds) == len(self.vowel_sounds):
+            self.matches = list(zip(self.sylbl_sounds, self.vowel_sounds))
 
 class text_segment():
     def __init__(self, typ, label, start, end):
@@ -75,31 +208,33 @@ class text_segment():
     def gen_content(self, raw_text, next_start):
         self.content = raw_text[self.end:next_start]
 
-#run word dictionary to store temp word types
-#fix lower so you don't need to store as lower
-#^ adjust accordingly in rap viz
-#build/store line types here as well
 class verse(text_segment):
-    def split_on_word(self):
-        words = re.sub("[^0-9a-zA-Z\']+", ' ', self.content).lower()
-        words = words.split(' ')
-        self.all_words = list(filter(None, words))
-        self.unique_words = set(self.all_words)
-    
-    def split_on_line(self):
-        self.all_lines = list(filter(None, self.content.split('\n')))
-        
+	#simple way of getting verse as linse, words, unique words and a sylbl dic for low storage
+    def split_to_words(self):
+        self.all_words_by_line, self.all_words = [], []
+        self.unique_words = set()
+        self.word_objs = {}
+        for cur_line in list(filter(None, self.content.split('\n'))):
+            ap_line = []
+            words = re.sub("[^0-9a-zA-Z\']+", ' ', cur_line).split(' ')
+            words = list(filter(None, words))
+            self.all_words.extend(words)
+            self.all_words_by_line.append(words)
+            for cur_word in words:
+                self.word_objs[cur_word] = word(cur_word)
+                #need this to be lower for true count
+                self.unique_words = self.unique_words|{cur_word.lower()}
+
     def split_on_stem(self):
         stemmer = SnowballStemmer("english")
         self.split_on_word()
-        words_stm = [stemmer.stem(x) for x in self.all_words if stemmer.stem(x) not in stopwords.words('english')]
+        words_stm = [stemmer.stem(x.lower()) for x in self.all_words if stemmer.stem(x.lower()) not in stopwords.words('english')]
         self.all_stemmed_words = list(filter(None, words_stm))
         self.unique_stemmed_words = set(self.all_stemmed_words)
     
     def run_all_split(self):
-        self.split_on_word()
-        self.split_on_line()
-        self.split_on_stem()
+        self.split_to_words()
+        #self.split_on_stem()
 
 class song():
     #class variable -- regex are dope
@@ -205,32 +340,38 @@ class song():
         self.uniq_art_verses = find_uniq_art_vers(self.artist, self.verses)
 #simple function to pull song info
 def flatten_songs(song_list):
-    ret_segs, ret_verses, ret_uniq_art_verses = [], [], []
+    #ret_segs, ret_verses, ret_uniq_art_verses = [], [], []
+    ret_verses, ret_uniq_art_verses = [], []
     for cur_song in song_list:
-        ret_segs = ret_segs + cur_song.segments
+        #ret_segs = ret_segs + cur_song.segments
         ret_verses = ret_verses + cur_song.verses
         ret_uniq_art_verses = ret_uniq_art_verses + cur_song.uniq_art_verses
-    return ret_segs, ret_verses, ret_uniq_art_verses
+    #return ret_segs, ret_verses, ret_uniq_art_verses
+    return ret_verses, ret_uniq_art_verses
 
 #album is a wrapper for holding songs, and verses, don't need it to hold song_segments but it can
+#as verse grows more complex and I segment less by album, etc, may want to get rid of this - not yet just a thought
+#^per this thought, gonna only store vereses in artist not segments
 class album():
     def __init__(self, artist, name, songs):
         self.name = name
         self.artist = artist
         self.songs = songs
-        self.segments, self.verses, self.uniq_art_verses = flatten_songs(self.songs)
+        #only gonna store verses
+        #self.segments, self.verses, self.uniq_art_verses = flatten_songs(self.songs)
+        self.verses, self.uniq_art_verses = flatten_songs(self.songs)
 #aritst is similar but holds albums, songs and verses
 class artist():
     def __init__(self, name, albums):
         self.name = name
         self.albums = albums
         self.songs = []
-        self.segments = []
+        #self.segments = []
         self.verses = []
         self.uniq_art_verses = []
         for alb in albums:
             self.songs = self.songs + alb.songs
-            self.segments = self.segments + alb.segments
+            #self.segments = self.segments + alb.segments
             self.verses = self.verses + alb.verses
             self.uniq_art_verses = self.uniq_art_verses + alb.uniq_art_verses
 
@@ -242,13 +383,13 @@ def construct_albums(albs_dic, artist_nm):
         for sng_name, lyrc in sngs.items():
             song_obj = song(lyrc, sng_name, artist_nm)
             song_obj.assign_extras()
-            song_obj.remove_and_reass(['[]', '?', '*text', '{**}']) 
+            song_obj.remove_and_reass(['?', '*text', '{**}']) 
             song_obj.create_song_as_seg()
             song_objs.append(song_obj)
         album_obj = album(artist_nm, alb_name, song_objs)
         albums.append(album_obj)
     return albums
-
+#temp album searches
 def construct_artists(conn, art_list = [''], alb_list = [''], sng_list = [''], use_ind_artists=False):
     record_pull = adv_pull(conn, art_list, alb_list, sng_list, use_ind_artists)
     artist_works = []
@@ -259,4 +400,5 @@ def construct_artists(conn, art_list = [''], alb_list = [''], sng_list = [''], u
         else:
             #key error means it didn't find anything for that artist
             artist_works.append(artist(main_artist, construct_albums(db_records[main_artist], main_artist)))
+        print('Made %s object!'%main_artist)
     return artist_works
