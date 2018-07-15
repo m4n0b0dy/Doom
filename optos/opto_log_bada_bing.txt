@@ -47,5 +47,4 @@ Change #46-loc(Line:49, Word:4): Within "on" changed "on" from "AA1(4)" to "AO1(
 Change #47-loc(Line:50, Word:3): Within "its" changed "its" from "IH0(5)" to "IH1(7)"
 Change #48-loc(Line:53, Word:1): Within "them" changed "them" from "AH0(7)" to "EH1(8)"
 Change #49-loc(Line:53, Word:3): Within "remember" changed "re" from "IH0(4)" to "IY0(5)"
-Change #50-loc(Line:54, Word:2): Within "the" changed "the" from "IY0(3)" to "AH1(5)"
-Change #51-loc(Line:54, Word:2): Within "the" changed "the" from "AH1(5)" to "AH0(7)"
+Change #50-loc(Line:54, Word:2): Within "the" changed "the" from "IY0(3)" to "AH0(7)"
