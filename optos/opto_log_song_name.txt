@@ -1,8 +1,0 @@
-Change #1-loc(Line:0, Word:2): Within "in" changed "in" from "IH0(2)" to "IH1(3)"
-Change #2-loc(Line:0, Word:7): Within "cause" changed "cause" from "AA1(3)" to "AO1(4)"
-Change #3-loc(Line:2, Word:1): Within "your" changed "your" from "AO1(5)" to "UH1(7)"
-Change #4-loc(Line:4, Word:1): Within "that" changed "that" from "AE1(5)" to "AH0(10)"
-Change #5-loc(Line:6, Word:5): Within "ohh" changed "ohh" from "OW1(4)" to "AH1(6)"
-Change #6-loc(Line:7, Word:7): Within "get" changed "get" from "EH1(2)" to "IH1(11)"
-Change #7-loc(Line:7, Word:9): Within "of" changed "of" from "AH1(5)" to "AH0(10)"
-Change #8-loc(Line:7, Word:10): Within "them" changed "them" from "EH1(2)" to "AH0(10)"
