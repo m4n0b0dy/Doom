@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 import urllib
 import time
 from rap_db import pull_link_from_art
-#I don't like using try excepts but for scraping you don't want hte whole thing to fail on an anamoloy
+#I don't like using try excepts but for scraping you don't want the whole thing to fail on an anamoloy
 def pull_links(page_link, app, sng_scr=False):
 	ret_list = []
 	try:
