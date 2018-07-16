@@ -4,7 +4,7 @@ Project Doom is a group of 4 of libraries used for in depth analysis of rap lyri
 
 Doom is broken up into 4 libraries, each designed with a focused purpose addressing the full scrape to vizualization journey. Here are the libraries and their primary functionality/capabilties:
 
-#### [rap_scrpr](#rap_scrpr)
+#### [rap_scrpr](#rap_scrpr-guide)
 
 This library is used to scrape rap lyrics website http://ohhla.com. For the most part, lyrics are organized in generally the same format with consistent labeling making the cleaning process simpler.
 
@@ -31,7 +31,7 @@ NEWCOMERS - This does not install all the other libraries necessary to run Doom
 ### Library Dependencies
 I'm not shy about using other libraries, and given the different goals of each library, they use a ton of external functions. Here are the dependenceis broken up by library; once a library has been listed, it isn't re-listed when imported again in a different Doom library. For your own sanity, I would HIGHLY recommend using Anaconda and installing all the unincluded ones individually.
 
-#### rap_scrpr libs
+#### rap_scrpr
 ```
 import json
 import re
@@ -81,7 +81,7 @@ What things you need to install the software and how to install them
 
 ## Library Guides
 
-#### rap_scrpr
+#### rap_scrpr guide
 
 
 #### rap_db
