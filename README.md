@@ -6,7 +6,7 @@ Doom is broken up into 4 libraries, each designed with a focused purpose address
 
 #### [rap_scrpr](#rap_scrpr-guide)
 
-This library is used to scrape rap lyrics website http://ohhla.com. For the most part, lyrics are organized in generally the same format with consistent labeling making the cleaning process simpler.
+This library scrapes from a [rap lyrics website](http://ohhla.com). For the most part, lyrics are organized in generally the same format with consistent labeling making the cleaning process simpler.
 
 #### [rap_db](#rap_db-guide)
 While not inherently necessary, this library is comprised of a group of functions to interact with a PostgreSQL database full of rap lyrics. It manages the entire data storage process, table creation, populating the database, and quereying it.
@@ -69,27 +69,21 @@ from IPython.core.display import display, HTML
 from copy import deepcopy
 ```
 
-# temp stufff
-
-## Getting Started
-
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
-
-### Prerequisites
-
-What things you need to install the software and how to install them
-
-## Library Guides
+## Doom Library Guides
 
 #### rap_scrpr guide
-
+```
+Give examples
+```
 #### rap_db guide
-
+```
+Give examples
+```
 #### rap_clean guide
-
+```
+Give examples
+```
 #### rap_viz guide
-
-
 ```
 Give examples
 ```
