@@ -8,13 +8,13 @@ Doom is broken up into 4 libraries, each designed with a focused purpose address
 
 This library is used to scrape rap lyrics website http://ohhla.com. For the most part, lyrics are organized in generally the same format with consistent labeling making the cleaning process simpler.
 
-#### [rap_db](#Guide:-rap_db)
+#### [rap_db](#rap_db-guide)
 While not inherently necessary, this library is comprised of a group of functions to interact with a PostgreSQL database full of rap lyrics. It manages the entire data storage process, table creation, populating the database, and quereying it.
 
-#### [rap_clean](#Guide:-rap_clean)
+#### [rap_clean](#rap_clean-guide)
 This is the most complex of the four libraries as it tackles the most challenging part of data retrieval. Per its name, it cleans and prunes lyrics stored in raw text data and extracts songs segments (intro, verse, chorus, outro, misc.). This project is dedicated to verses so there are additional filtering and objects/methods (word syllable extraction) focused on verses.
 
-#### [rap_viz](#Guide:-rap_viz)
+#### [rap_viz](#rap_viz-guide)
 This library uses specialized artist, song, and verse objects created in rap_clean to vizualize lingustic meta data, verse syllable breakdowns, and verse sorting/rankings. The functions in rap_viz can also be used as a template for creating complex, more specific, or more dynamic vizualizations based on user preference.
 
 #### rap_mach
@@ -83,11 +83,11 @@ What things you need to install the software and how to install them
 
 #### rap_scrpr guide
 
-#### Guide: rap_db
+#### rap_db guide
 
-#### Guide: rap_clean
+#### rap_clean guide
 
-#### Guide: rap_viz
+#### rap_viz guide
 
 
 ```
