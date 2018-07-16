@@ -2,19 +2,19 @@
 
 Project Doom is a group of 4 of libraries used for in depth analysis of rap lyrics. Doom specifically focuses on rap verses; where other libraries analyze all lyrics of a song, Doom utilizes complex but rhobust filtering to extract verses and verses specific to indibidual artists. Doom is written to be powerful enough for advanced programmers to use/tweak for their own research and simple enough for new comers/non-technical rap enthusiasts to utilize. By using container functions and detailing the start to finish, full scrape to vizualization process in full_proc.ipynb, I hope people from all expertise backgrounds can enjoy and learn something new. Please use/tweak full_proc.ipynb for a simple and high level guide to using the libraries, this readme goes into depth regarding each function and object within each library.
 
-Doom is broken up into 4 libraries, each designed with a focused purpose addressing the full scrape to vizualization journey. Here are the libraries and their primary functionality/capabilties:
+Doom is broken up into 4 libraries, each designed with a focused purpose addressing the full scrape to vizualization journey. Here are the libraries and their primary functionality/capabilties (click one to read the documentation):
 
-#### [rap_scrpr](#rap_scrpr-guide)
+#### [rap_scrpr](#Guide:-rap_scrpr)
 
 This library is used to scrape rap lyrics website http://ohhla.com. For the most part, lyrics are organized in generally the same format with consistent labeling making the cleaning process simpler.
 
-#### rap_db
+#### [rap_db](#Guide:-rap_db)
 While not inherently necessary, this library is comprised of a group of functions to interact with a PostgreSQL database full of rap lyrics. It manages the entire data storage process, table creation, populating the database, and quereying it.
 
-#### rap_clean
+#### [rap_clean](#Guide:-rap_clean)
 This is the most complex of the four libraries as it tackles the most challenging part of data retrieval. Per its name, it cleans and prunes lyrics stored in raw text data and extracts songs segments (intro, verse, chorus, outro, misc.). This project is dedicated to verses so there are additional filtering and objects/methods (word syllable extraction) focused on verses.
 
-#### rap_viz
+#### [rap_viz](#Guide:-rap_viz)
 This library uses specialized artist, song, and verse objects created in rap_clean to vizualize lingustic meta data, verse syllable breakdowns, and verse sorting/rankings. The functions in rap_viz can also be used as a template for creating complex, more specific, or more dynamic vizualizations based on user preference.
 
 #### rap_mach
@@ -81,18 +81,13 @@ What things you need to install the software and how to install them
 
 ## Library Guides
 
-#### rap_scrpr guide
+#### Guide: rap_scrpr
 
+#### Guide: rap_db
 
-#### rap_db
+#### Guide: rap_clean
 
-<a name="rap_clean"/>
-
-#### rap_clean
-
-<a name="rap_viz"/>
-
-#### rap_viz
+#### Guide: rap_viz
 
 
 ```
