@@ -164,7 +164,6 @@ def unique_count_to_length(artist_obj_list, all_feat_artist=False, by_alb=False)
 						name=art.name,
 						mode = 'markers',
 						hoverinfo='text'))
-
 	layout = go.Layout(title='Avg Unique Word Length by Count per Song',
 	xaxis=dict(title='Avg Unique Word Length'),
 	yaxis=dict(title='Unique Word Count'),
