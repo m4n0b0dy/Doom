@@ -6,7 +6,7 @@ Doom is broken up into 4 libraries, each designed with a focused purpose address
 
 #### rap_scrpr
 
-[rap_scrpr](###rap_scrpr)
+[rap_scrpr](#rap_scrpr)
 
 This library is used to scrape rap lyrics website http://ohhla.com. For the most part, lyrics are organized in generally the same format with consistent labeling making the cleaning process simpler.
 
