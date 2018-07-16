@@ -4,7 +4,7 @@ Project Doom is a group of 4 of libraries used for in depth analysis of rap lyri
 
 Doom is broken up into 4 libraries, each designed with a focused purpose addressing the full scrape to vizualization journey. Here are the libraries and their primary functionality/capabilties (click one to read the documentation):
 
-#### [rap_scrpr](#Guide-rap_scrpr)
+#### [rap_scrpr](#Guide rap_scrpr)
 
 This library is used to scrape rap lyrics website http://ohhla.com. For the most part, lyrics are organized in generally the same format with consistent labeling making the cleaning process simpler.
 
