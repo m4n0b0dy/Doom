@@ -64,7 +64,7 @@ def song_scrape(links, slept=1):
 
 
 #scraping is now all done, have to do intial clean
-def raw_clean(song_texts, scrape_artist):
+def raw_clean(song_texts):
 	song_data = {}
 	count_raw = 0
 	count_clean = 0

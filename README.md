@@ -75,39 +75,114 @@ from copy import deepcopy
 
 #### rap_scrpr guide
 ```
-#I don't like using try excepts but for scraping you don't want the whole thing to fail on an anamoloy
 pull_links(page_link, app, sng_scr=False)
-#find links to an artist's song
+```
+This sub function pulls a list of links to feed into scraper. It may run twice if artist page is in certain format (auto detects)
+page_link: link to page pulling links from
+app: specialized character appending for certain artist pages
+sng_scr = False: indicating if it's one of those special artists
+returns list of song links
+```
 song_links(page_link, slept=.1)
-#scrape the links
+```
+This sub function takes in artist/album links and uses pull_links to find song links (more of a wrapper function)
+page_link: artist page link
+slept = .1: rest scraper between scrape to not overload host server
+returns list of song links from artist input
+```
 song_scrape(links, slept=1)
-#scraping is now all done, have to do intial clean
-raw_clean(song_texts, scrape_artist)
-#scrape artist from list
+```
+This function scrapes a list of SONG LINKS (must be song links)
+links: song links
+slept = 1: sleep between song scrapes (without rest subject to 403 errors)
+returns list of raw song texts
+```
+raw_clean(song_texts)
+```
+This very simple cleaning function loads in raw text and identifies artist, album, song from data included in ohhla. If it can't id it, labels text "raw"
+song_texts: list of string song texts
+returns dictionary of cleaned song texts (artist:album:title:lyrics)
+```
 scrape_multi_artists(conn, artist_list)
 ```
+This function uses pull_link_from_art to pull each link for each artist from DB. Then it iterates over artist links and scrapes/applies above functions to each artist and saves them to individual JSON files
+conn: postgresql connection object
+artist_list: list of artist names that map to DB records
+returns list of strings that are names of new JSON files
 #### rap_db guide
+Pretty much all functions in this library interact with our database of lyrics. Some are for data management/saving. Given their jobs, they don't return anything unless stating otherwise
 ```
-#create the tables - will over write any data there
 create_music_tables(conn, bypass = False)
-#so an issue here is when another artist that is featured with an artist that has already been loaded is loaded,
-#it tries to load that base ID but finds that there's two base artist names for that one artist name used in query
-#add to database meta stats when you have em
+```
+This function eraeses and creates 4 tables (base_artist, artists, albums, songs) that will hold our data
+conn: postgresql connector object
+bypass = False: a boolean to bypass the warning signal (warning cause you'd be erasing everything!)
+```
+add_base(conn, base_art_name)
+```
+This function adds a special table to record which JSON file contributed what. It's not used later but helpful to refer back to ohhla
+conn: postgresql connector object
+base_art_name: JSON file name - '.json'
+```
 add_songs(conn, base_art_name, art_name, art)
-#this one is faster, only does one song at a time
-#also only returns artist to song to lyrics dic rather than artist to album to song to lyrics
+```
+This function adds songs to the DB! It uses the dictionary format we saved the JSON files in via rap_scrpr (artist:album:song:lyrics)
+conn: postgresql connector object
+base_art_name: json file name - '.json'
+art_name: string of artist name
+art: artist dictionary saved into JSON file
+```
 percise_pull(conn, art, alb=False, song=False)
+```
+This is a depricated but faster way to pull a song. It can pull all of an artists works, certain albums, or certain songs. However, it can only do one artist at a time
+conn: postgresql connector object
+art: string artist name
+alb: string album name
+song: string song name
+returns dictionary consisting of this format (artist:artist:song:lyrics)
+```
 update_art_dic(art_dic, query, base_artist, use_ind_artists)
-#this one is easier/more general but slower than first
-#i map using the db artist name or base artist. It feeds into update art dic each song find
+
+```
+This function assists the adv_pull function by continually updating a dictionary that consists of an artists work. It outputs the same dictionary that inputs to keep updating it as more and more song sare pulled
+art_dic: a dictionary containing the full query information for an individual artist, always organized (artist:album:song:lyrics)
+query: this is a dictionary comprised of the returns of a DB query
+base_artist: this is a string of the USER INPUTTED artist name. Otherwise it would use the names in the DB (it gets those from ohhla)
+use_ind_artists: a boolean that is typically false (usually use user input artist name). If it is true, the art_dic will be organized by the names in the DB which uses the ohhala true artist name which can contian features, typos, etc.
+returns continually updating dictionary for singular artist
+```
 adv_pull(conn, artist_list = [''], album_list = [''], song_list = [''], use_ind_artists=False)
+```
+This function is more advanced than percise_pull. It can handle multiple artists, multiple albums, or multiple songs. As a result it has much simpler inputs but is slower.
+conn: postgresql connector object
+artist_list: list strings of artist names
+album_list: list of strings of album names
+song_list: list of strings of song names
+use_ind_artists: boolean that is rarely used, use case described above
+returns a dictonary of artist song info in this format (multiple artists:respective albums:respective songs:respective lyrics)
+```
 pull_link_from_art(conn, artist_name)
-#function to load everything into db quickly
+```
+This pulls the ohhla link from a special table using an artist name. Not vital but makes it really easy to scrape.
+conn: postgresql connector object
+artist_name: string containing artist name matching db (case doesn't matter)
+returns the ohhla link to scrape
+```
 def bulk_load(conn, new_eds = [])
-#two quick and easy functions for loading my artist files
+```
+This is a wrapper function that uses the above functions to load in new JSON files into DB easily (DOES NOT RECREATE/ERASE TABLES).
+conn: postgresql connector object
+new_eds: list of strings of JSON files
+```
 art_save(arts)
+```
+This has nothing to do with databases but is for data management. Once an artist object is created, you can save it as a pickle file to a folder with this function. Create artist objects involves a lot of cleaning and labeling so it greatly speeds process. Also elminates need for database for high level artist analysis.
+arts: list of artist objects
+```
 art_load(nms = set())
 ```
+This loads those pickle files for quick and easy access. With no arguments, it loads all artist objects in folder.
+nms = set(): list of strings referring to artist object names to load in (just the name, don't need to include .pkl)
 #### rap_clean guide
 ```
 #quick way to check if it's a true verse, 20 charcaters and at least 12 unique words

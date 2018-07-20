@@ -144,7 +144,8 @@ def percise_pull(conn, art, alb=False, song=False):
     ret_dic = {}
     for qu in quer:
         ret_dic[qu[0]] = qu[1]
-    return ret_dic
+    full_ret_dic = {art:ret_dic}
+    return full_ret_dic
 
 def update_art_dic(art_dic, query, base_artist, use_ind_artists):
     #determines if we group by main artist or ind artists
@@ -200,7 +201,7 @@ def adv_pull(conn, artist_list = [''], album_list = [''], song_list = [''], use_
 
 def pull_link_from_art(conn, artist_name):
     cur = conn.cursor()
-    cur.execute('''SELECT artist_link from all_artist_names WHERE artist_nm = %(art)s''', {'art':artist_name})
+    cur.execute('''SELECT artist_link from all_artist_names WHERE lower(artist_nm) = %(art)s''', {'art':artist_name.lower()})
     return 'http://ohhla.com/'+cur.fetchone()[0]
 
 #function to load everything into db quickly
