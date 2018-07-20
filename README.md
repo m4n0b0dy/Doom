@@ -71,7 +71,7 @@ from IPython.core.display import display, HTML
 from copy import deepcopy
 ```
 
-## Doom Library Guides
+## Doom Library Function and Object Guides
 
 #### rap_scrpr guide
 ```
@@ -184,6 +184,7 @@ art_load(nms = set())
 This loads those pickle files for quick and easy access. With no arguments, it loads all artist objects in folder.
 nms = set(): list of strings referring to artist object names to load in (just the name, don't need to include .pkl)
 #### rap_clean guide
+This is by far the most complex of the libraries. I wrote this library and it's guide in this order functions that support objects, objects (with methods), functions that load/create/populate objects. Because data cleaning is such an important part of data science, there are a lot of choices I made (reflected in the function arguments) in construction of each verse object. This is based on what I saw as the most efficient and accurate way to filter out non-verses. However, some may want to revisit my cleaning methadology, make improvements and filter differently: every function and object is equippied for revision.
 ```
 #quick way to check if it's a true verse, 20 charcaters and at least 12 unique words
 check_verse(text, nec_len = 20, nec_uniq = 12)
