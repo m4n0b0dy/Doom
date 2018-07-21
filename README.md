@@ -186,7 +186,7 @@ This loads those pickle files for quick and easy access. With no arguments, it l
 nms = set(): list of strings referring to artist object names to load in (just the name, don't need to include .pkl)
 
 #### rap_clean guide
-This is by far the most complex of the libraries. I wrote this library and it's guide in this order functions that support objects, objects (with methods), functions that load/create/populate objects. Because data cleaning is such an important part of data science, there are a lot of choices I made (reflected in the function arguments) in construction of each verse object. This is based on what I saw as the most efficient and accurate way to filter out non-verses. However, some may want to revisit my cleaning methadology, make improvements and filter differently: every function and object is equippied for revision.
+This is by far the most complex of the libraries. I wrote this library and it's guide in this order -functions that support objects, objects (with methods), functions that load/create/populate objects-. Because data cleaning is such an important part of data science, there are a lot of choices I made (reflected in the function argument line) in construction of each verse object. This is based on what I saw as the most efficient and accurate way to filter out non-verses. However, some may want to revisit my cleaning methadology, make improvements and filter differently: every function and object is equippied for revision.
 ```
 check_verse(text, nec_len = 20, nec_uniq = 12)
 ```
@@ -341,20 +341,30 @@ returns a dictionary in the format (artist name as string:artist object (contain
 #### rap_viz guide
 ```
 gen_plot(typ, traces, arts, b)
-unique_words_hist(artist_obj_list, all_feat_artist=False, song_or_verse='verse', b=.01)
-#my favorite funciton of all time tbh
-unique_verses_bar(artist_obj_list, all_feat_artist=False, verse_count = 10)
-#nice! By album as well
-unique_count_to_length(artist_obj_list, all_feat_artist=False, by_alb=False)
-#searches an artists work and pulls a song and verse number
-verse_search(artist_obj, song_name, verse_number=0)
-#mainly a container for words and meta word data
-class line(self, word_objs)
-#used in both vizualizing verses and optoing sylbl matching
-class verse_graph(self, verse_obj, artist_name, song_name)    
-    verse_graph.opto_matches(self, pop=False, exc_line=False, opto_type='exact')
-    #create a color dic corresponding to used vowel sounds
-    verse_graph.colorize_vowels(self, match_type='near')
-    #use html to plot verse and save html version
-    verse_graph.graph_colored_verse(self)
 ```
+```
+unique_words_hist(artist_obj_list, all_feat_artist=False, song_or_verse='verse', b=.01)
+```
+```
+unique_verses_bar(artist_obj_list, all_feat_artist=False, verse_count = 10)
+```
+```
+unique_count_to_length(artist_obj_list, all_feat_artist=False, by_alb=False)
+```
+verse_search(artist_obj, song_name, verse_number=0)
+```
+class line(self, word_objs)
+```
+```
+class verse_graph(self, verse_obj, artist_name, song_name)    
+```
+```
+verse_graph.verse_graph.opto_matches(self, pop=False, exc_line=False, opto_type='exact')
+```
+```
+verse_graph.colorize_vowels(self, match_type='near')
+```
+```
+verse_graph.graph_colored_verse(self)
+```
+Congrats on making it to the end! Didn't think anyone would TBH.
