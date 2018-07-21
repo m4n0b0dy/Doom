@@ -109,6 +109,7 @@ This function uses pull_link_from_art to pull each link for each artist from DB.
 conn: postgresql connection object
 artist_list: list of artist names that map to DB records
 returns list of strings that are names of new JSON files
+
 #### rap_db guide
 Pretty much all functions in this library interact with our database of lyrics. Some are for data management/saving. Given their jobs, they don't return anything unless stating otherwise
 ```
@@ -183,49 +184,160 @@ art_load(nms = set())
 ```
 This loads those pickle files for quick and easy access. With no arguments, it loads all artist objects in folder.
 nms = set(): list of strings referring to artist object names to load in (just the name, don't need to include .pkl)
+
 #### rap_clean guide
 This is by far the most complex of the libraries. I wrote this library and it's guide in this order functions that support objects, objects (with methods), functions that load/create/populate objects. Because data cleaning is such an important part of data science, there are a lot of choices I made (reflected in the function arguments) in construction of each verse object. This is based on what I saw as the most efficient and accurate way to filter out non-verses. However, some may want to revisit my cleaning methadology, make improvements and filter differently: every function and object is equippied for revision.
 ```
-#quick way to check if it's a true verse, 20 charcaters and at least 12 unique words
 check_verse(text, nec_len = 20, nec_uniq = 12)
-#this specialized function pulls out verses that are by specific artist (not features) and don't match any other verse to 50%
+```
+This checks if a long string of lyrics is really a verese. By default, it must be at least 20 char long and have 12 unique words
+text: text lyrics as string
+nec_len = 20: minimum character count
+nec_uniq = 12: min unique word count
+returns true or false based on check
+```
 find_uniq_art_vers(ar, all_ver_lst, ratio_check=.5)
-#simple and fast recursive flatten function to flatten any object
+```
+Similarly, this checks if a long string is really by the target artist (not a features' verse) and shouldn't be classified as a chorus. By default, any text lyrics with 50% similarity are considered to be choruses (as they are repeated)
+ar: artist name, used to check if actually by artist
+all_ver_lst: this is a set of all the verses we will check. They are all loaded in at once as they need to be compared to each other
+ratio_check = .5: this is the minimum similarity that will trigger a False for a verse. If they have more than 50% similarity they aren't verses
+returns a list of true, artist unique verses (later used as sttribute)
+```
 flatten(container)
-#used to hold and breakdown words
-#most complex of all objects/functions
+```
+This simply takes a list, tuple, set, containr that contains other containers and flattens every element until it is all in one container
+container: list of lits, tuple of tuples, list of lists of lists, etc.
+returns flattened container
+```
 class word(self, text):
-    #deconstruct word into vowel sounds and sylbl sounds and match them
-    word.my_split(self, text_to_split, vowel_config, ap='', ap_num=False)
-    #this is used for known special splitting for 0 or 1 sylbl sounds using unique vowel combos
-    word.spec_split(self, cur_vowel_config, regex_end, ap_syls)
-    #this function matches vowel sylbls to word sylbls for colorizing
-    word.sylbl_match(self)
+```
+This object is used to hold and analyze individual words. It can segment a word into vowel sounds and syllable sounds even when misspelled. It has only two methods but many attributes. __init__ runs complex functionality, but the overall goal is to match the count of vowel sounds to syllables for any given word
+text: word as string
+
+Here are its attributes
+```
+word.text #the true word in string format
+word.found_text #the closest word in CMU dict in string format (same as word.text if in dict)
+word.all_found_words #a list of 5 words that are closest to word.txt
+word.vowel_sounds #the primary guess at the correct number of/vowel sounds of a word
+word.sylbl_sounds #the primary guess at the correct number of/syllable soudns of a word
+word.same_vowel_sounds #a list of possible vowel breakdowns that have the same length as word.sylbl_sounds
+word.matches #a list of tuples in the format (syllable:vowel sound)
+```
+```
+word.my_split(self, text_to_split, vowel_config, ap='', ap_num=False)
+```
+This is my custom splitting algorithim when traditional vowel and syllable breakdowns don't match in length (for colorization)
+text_to_split: text that will run through algorithim
+vowel_config: a vowel configuration used to match multiple syllable breakdowns
+ap, ap_num: only used by other functions, no need to edit (used in special pronucniation edge cases)
+```
+spec_split(self, cur_vowel_config, regex_end, ap_syls)
+```
+This is used for special vowel combinations that product 1 or 0 vowel sounds "tion", "eve". These are matched on regex with an associated vowel count
+cur_vowel_config: vowel breakdown of the word (fed into my_split)
+regex_end: the regex used to find the special character combo
+ap_syls: the number of vowel sounds that match is responsible for
+```
+word.sylbl_match(self)
+```
+This is a simple method that combines vowel sounds with syllable soudns. If no match is found, set attribute to unknown.
+```
 class text_segment(self, typ, label, start, end)
-    text_segment.gen_content(self, raw_text, next_start)
+```
+This is a basic text segment object. It can store where the text segment is for removal or analyses
+typ: the type of text segment (held within regex class attribute of song)
+label: the contents within the bracket, parenthesees, curly bracets, etc. type
+start: the position in the text where the label starts
+end: the position in the text where the content ends
+```    
+text_segment.gen_content(self, raw_text, next_start)
+```
+This method extracts content from the text segment based on where the next text segment starts and contents of the current text segemnt
+raw_text: the entire song as a text string
+next_start: where the next text segment begins
+self.content = the content of that segment
+```
 class verse(text_segment):
-    #simple way of getting verse as lines, words, unique words and a sylbl dic for low storage
-    verse.split_to_words(self)
-    verse.split_on_stem(self)
-    verse.run_all_split(self)
+```
+Uses inheritance from text segment. Everything is stored the same, when class song creates verse dictionaries, it utilizes the two checks described above
+```
+verse.split_to_words(self)
+```
+This splits the text segment into lines, and those lines into words. It then turns each word as a string into a word object (and runs word object methods). It stores these word objects in a dictionary (for speed and memory managment) and otehr attributes for later use
+verse.all_words_by_line: list of words as strings, line by line
+verse.all_words: a list of strings, each string is a word in verse
+verse.unique_words: a set of strings, each string is a unique word in verse
+self.word_objs: a dictionary in this format (word as string: word as word object)
+```
 class song(self, raw_text, name, artist):
-    #go through regex and compile dict and set of locaitons of each pattern match
-    song.assign_extras(self)
-    #this removes the full captured text of any of the regex formations utilized above and recalculates all the new positions
-    song.remove_and_reass(self, rems = [])
-    #using our ordered list of regex matches from before, create a song out of the segments it's comprised of
-    song.create_song_as_seg(self)
-#simple function to pull song info
+```
+This takes in raw lyrics as text and creates segments out of them. Segments are text segments (with different types) or verses. Each verse goes through deeper analysis.
+Attribtes
+CLASS.regex_commands: this is a large dictionary of text segment types to regex commands that can extract them. It is a class attribute as it will always be used
+song.raw_text: lyrics as string
+song.name: name of song
+song.artist: name of artist
+```
+song.assign_extras(self)
+```
+This goes through regex dictionary and finds every segment it can. It marks where it starts, where it ends and its content. It also does a quick check override for verses and saves special seg types that will eventually be created as text_segments
+self.extras: a dictionary of every single text segment type and their matching start, end, content. Can be used for removal, text_segment creation, etc.
+self.extra_segs: a list of extras values that will be used to create the song as a segment, includes ['verse', 'chorus', 'intro', 'outro', '[]']
+```
+song.remove_and_reass(self, rems = [])
+```
+This goes through a list of types that we want to have removed from the song, removes them and their content and recalculates the extras.
+rems: a list of types (regex dictionary keys) we want removed
+```
+song.create_song_as_seg(self)
+```
+This goes through self.extra_segs and creates each one into a text segment. It also creates/checks text segments if they should be verses and makes a verse object instead. It populates song.segments.
+Attributes
+song.segmets: a list of text_segment objects and verses that make up a song
+song.verses: a list of just the verses
+song.uniq_art_verses: a list of verses that also passed the unique test listed earlier
+```
 flatten_songs(song_list)
-#album is a wrapper for holding songs, and verses, don't need it to hold song_segments but it can
+```
+This flattens a list of songs into one list to simplify making album and artist container
+song_list: list of list of song objects
+returns list of song objects
+```
 class album(self, artist, name, songs)
-#aritst is similar but holds albums, songs and verses
+```
+This is a container object that holds song objects.
+album.artist: artist name as string
+album.name: album name as string
+album.songs: a list of song objects
+album.verses: a list of verse objects
+album.uniq_art_verses: a list of vereses that also passed unique test
+```
 class artist(self, name, albums)
-#finally a function to build all this stuff
+```
+This is another contianer at the artist level. It has similar attributes to album but also contains albums. This overlap of information allows for more specific searching. Since objects are already created, it doesn't vastly increase time by copying them again (does increase total memory spcae)
+artist.name: artist name as string
+artist.albums: a list of album objects
+artist.songs: a list of song objects
+artist.verses: a list of verse objects
+artist.uniq_art_verses: a list of vereses that also passed unique test
+```
 construct_albums(albs_dic, artist_nm)
-#temp album searches
+```
+This function builds out artist, album, song, text_segments, verses, word objects from a database pull. It takes in the artists name, and a dictionary in the format (album:song:lyrics) and makes appropirate objects.
+albs_dic: a dictionary of albums to songs to lyrics, formatted in (album:song:lyrics)
+artist_nm: the artist we are creating's name as a string
+```
 construct_artists(conn, art_list = [''], alb_list = [''], sng_list = [''], use_ind_artists=False)
 ```
+This function uses adv_pull from rap_db to pull an artists work from the database. It can search for multiple artists filtered by albums or songs.
+conn: a postgresql connection object
+art_list: a list of artist names as strings to pull/filter with from DB
+alb_list: a list of album names as strings to pull/filter with from DB
+sng_list: a list of song names as strings to pull/filter with from DB
+use_ind_artist: a boolean that should be set as false. Only set to true when using the artist names in the database over the artist name used in select statement
+returns a dictionary in the format (artist name as string:artist object (containing all attributes listed above))
 #### rap_viz guide
 ```
 gen_plot(typ, traces, arts, b)
