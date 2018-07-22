@@ -98,14 +98,14 @@ This function scrapes a list of SONG LINKS (must be song links)
 
 links: song links\
 slept = 1: sleep between song scrapes (without rest subject to 403 errors)\
-returns list of raw song texts
+returns: list of raw song texts
 ```
 raw_clean(song_texts)
 ```
 This very simple cleaning function loads in raw text and identifies artist, album, song from data included in ohhla. If it can't id it, labels text "raw"
 
 song_texts: list of string song texts\
-returns dictionary of cleaned song texts (artist:album:title:lyrics
+returns: dictionary of cleaned song texts (artist:album:title:lyrics
 ```
 scrape_multi_artists(conn, artist_list)
 ```
@@ -113,7 +113,7 @@ This function uses pull_link_from_art to pull each link for each artist from DB.
 
 conn: postgresql connection object\
 artist_list: list of artist names that map to DB records\
-returns list of strings that are names of new JSON files
+returns: list of strings that are names of new JSON files
 
 ### rap_db guide
 Pretty much all functions in this library interact with our database of lyrics. Some are for data management/saving. Given their jobs, they don't return anything unless stating otherwise
@@ -149,7 +149,7 @@ conn: postgresql connector object\
 art: string artist name\
 alb: string album name\
 song: string song name\
-returns dictionary consisting of this format (artist:artist:song:lyrics)
+returns: dictionary consisting of this format (artist:artist:song:lyrics)
 ```
 update_art_dic(art_dic, query, base_artist, use_ind_artists)
 
@@ -157,10 +157,10 @@ update_art_dic(art_dic, query, base_artist, use_ind_artists)
 This function assists the adv_pull function by continually updating a dictionary that consists of an artists work. It outputs the same dictionary that inputs to keep updating it as more and more song sare pulled
 
 art_dic: a dictionary containing the full query information for an individual artist, always organized (artist:album:song:lyrics)\
-query: this is a dictionary comprised of the returns of a DB query\
+query: this is a dictionary comprised of the returns: of a DB query\
 base_artist: this is a string of the USER INPUTTED artist name. Otherwise it would use the names in the DB (it gets those from ohhla)\
 use_ind_artists: a boolean that is typically false (usually use user input artist name). If it is true, the art_dic will be organized by the names in the DB which uses the ohhala true artist name which can contian features, typos, etc.\
-returns continually updating dictionary for singular artist
+returns: continually updating dictionary for singular artist
 ```
 adv_pull(conn, artist_list = [''], album_list = [''], song_list = [''], use_ind_artists=False)
 ```
@@ -171,7 +171,7 @@ artist_list: list strings of artist names\
 album_list: list of strings of album names\
 song_list: list of strings of song names\
 use_ind_artists: boolean that is rarely used, use case described above\
-returns a dictonary of artist song info in this format (multiple artists:respective albums:respective songs:respective lyrics)
+returns: a dictonary of artist song info in this format (multiple artists:respective albums:respective songs:respective lyrics)
 ```
 pull_link_from_art(conn, artist_name)
 ```
@@ -179,7 +179,7 @@ This pulls the ohhla link from a special table using an artist name. Not vital b
 
 conn: postgresql connector object\
 artist_name: string containing artist name matching db (case doesn't matter)\
-returns the ohhla link to scrape
+returns: the ohhla link to scrape
 ```
 def bulk_load(conn, new_eds = [])
 ```
@@ -210,7 +210,7 @@ This checks if a long string of lyrics is really a verese. By default, it must b
 text: text lyrics as string\
 nec_len = 20: minimum character count\
 nec_uniq = 12: min unique word count\
-returns true or false based on check
+returns: true or false based on check
 ```
 find_uniq_art_vers(ar, all_ver_lst, ratio_check=.5)
 ```
@@ -219,14 +219,14 @@ Similarly, this checks if a long string is really by the target artist (not a fe
 ar: artist name, used to check if actually by artist\
 all_ver_lst: this is a set of all the verses we will check. They are all loaded in at once as they need to be compared to each other\
 ratio_check = .5: this is the minimum similarity that will trigger a False for a verse. If they have more than 50% similarity they aren't verses\
-returns a list of true, artist unique verses (later used as sttribute)
+returns: a list of true, artist unique verses (later used as sttribute)
 ```
 flatten(container)
 ```
 This simply takes a list, tuple, set, containr that contains other containers and flattens every element until it is all in one container
 
 container: list of lits, tuple of tuples, list of lists of lists, etc.\
-returns flattened container
+returns: flattened container
 ```
 class word(self, text):
 ```
@@ -332,7 +332,7 @@ flatten_songs(song_list)
 This flattens a list of songs into one list to simplify making album and artist container
 
 song_list: list of list of song objects\
-returns list of song objects
+returns: list of song objects
 ```
 class album(self, artist, name, songs)
 ```
@@ -370,7 +370,7 @@ art_list: a list of artist names as strings to pull/filter with from DB\
 alb_list: a list of album names as strings to pull/filter with from DB\
 sng_list: a list of song names as strings to pull/filter with from DB\
 use_ind_artist: a boolean that should be set as false. Only set to true when using the artist names in the database over the artist name used in select statement\
-returns a dictionary in the format (artist name as string:artist object (containing all attributes listed above))
+returns: a dictionary in the format (artist name as string:artist object (containing all attributes listed above))
 
 ### rap_viz guide
 All graphical vizualizations are based on the amazing and easy to use Plotly library; since they are similar, their functional arguments are also similar. The syllable colorziation vizualization was written by me. They don't return anything as they plot the vizualization in the notebook. I plan on recreating these functions with the ability to order/size according to multiple different metrics for later vizualization/exploration
