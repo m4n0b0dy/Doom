@@ -77,7 +77,7 @@ from copy import deepcopy
 ```
 pull_links(page_link, app, sng_scr=False)
 ```
-This sub function pulls a list of links to feed into scraper. It may run twice if artist page is in certain format (auto detects)\
+This sub function pulls a list of links to feed into scraper. It may run twice if artist page is in certain format (auto detects)
 
 page_link: link to page pulling links from\
 app: specialized character appending for certain artist pages\
@@ -111,7 +111,7 @@ conn: postgresql connection object
 artist_list: list of artist names that map to DB records
 returns list of strings that are names of new JSON files
 
-#### rap_db guide
+### rap_db guide
 Pretty much all functions in this library interact with our database of lyrics. Some are for data management/saving. Given their jobs, they don't return anything unless stating otherwise
 ```
 create_music_tables(conn, bypass = False)
@@ -186,7 +186,7 @@ art_load(nms = set())
 This loads those pickle files for quick and easy access. With no arguments, it loads all artist objects in folder.
 nms = set(): list of strings referring to artist object names to load in (just the name, don't need to include .pkl)
 
-#### rap_clean guide
+### rap_clean guide
 This is by far the most complex of the libraries. I wrote this library and it's guide in this order -functions that support objects, objects (with methods), functions that load/create/populate objects-. Because data cleaning is such an important part of data science, there are a lot of choices I made (reflected in the function argument line) in construction of each verse object. This is based on what I saw as the most efficient and accurate way to filter out non-verses. However, some may want to revisit my cleaning methadology, make improvements and filter differently: every function and object is equippied for revision.
 ```
 check_verse(text, nec_len = 20, nec_uniq = 12)
@@ -339,7 +339,8 @@ alb_list: a list of album names as strings to pull/filter with from DB
 sng_list: a list of song names as strings to pull/filter with from DB
 use_ind_artist: a boolean that should be set as false. Only set to true when using the artist names in the database over the artist name used in select statement
 returns a dictionary in the format (artist name as string:artist object (containing all attributes listed above))
-#### rap_viz guide
+
+### rap_viz guide
 All graphical vizualizations are based on the amazing and easy to use Plotly library; since they are similar, their functional arguments are also similar. The syllable colorziation vizualization was written by me. They don't return anything as they plot the vizualization in the notebook. I plan on recreating these functions with the ability to order/size according to multiple different metrics for later vizualization/exploration
 ```
 gen_plot(typ, traces, arts, b)
