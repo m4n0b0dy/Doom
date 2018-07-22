@@ -74,7 +74,7 @@ def unique_verses_bar(artist_obj_list, all_feat_artist=False, verse_count = 10):
 				ver_iter = sng.uniq_art_verses
 			for v_dex, v in enumerate(ver_iter):
 				#store the ratio, verse content, length, song name and verse number for the viz
-				all_verses.append((len(v.unique_words)/len(v.all_words), v.content, len(v.all_words),sng.name, v_dex))  
+				all_verses.append((len(v.unique_words)/len(v.all_words), v.content, len(v.all_words), sng.name, v_dex))  
 		#outside of for loop to get all artist work not all song
 		all_verses = sorted(all_verses, reverse=True)[:verse_count]
 		#this dic is for info purposes
@@ -140,7 +140,7 @@ def unique_count_to_length(artist_obj_list, all_feat_artist=False, by_alb=False)
 					one_song_all.extend(v.all_words)
 				if one_song_uniqs and one_song_all:
 					xs.append(sum(map(len, one_song_uniqs))/float(len(one_song_uniqs)))
-					ys.append(float(len(one_song_uniqs)/len(one_song_all)))
+					ys.append(float(len(one_song_uniqs)/float(len(one_song_all))))
 					song_names.append(sng.name)
 			#if we are recording one color per album
 			if by_alb:

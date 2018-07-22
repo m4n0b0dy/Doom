@@ -339,32 +339,82 @@ sng_list: a list of song names as strings to pull/filter with from DB
 use_ind_artist: a boolean that should be set as false. Only set to true when using the artist names in the database over the artist name used in select statement
 returns a dictionary in the format (artist name as string:artist object (containing all attributes listed above))
 #### rap_viz guide
+All graphical vizualizations are based on the amazing and easy to use Plotly library; since they are similar, their functional arguments are also similar. The syllable colorziation vizualization was written by me. They don't return anything as they plot the vizualization in the notebook. I plan on recreating these functions with the ability to order/size according to multiple different metrics for later vizualization/exploration
 ```
 gen_plot(typ, traces, arts, b)
 ```
+This supports the unique_words_hist which vizualizes distributions by verse or by song of the (total unique words)/(all words) ratio.
+typ: verse or song as string
+traces: these are plotly items that hold information about each datum point/bar
+arts: the artists used in the vizuailization
+b: the bin size of the histogram
 ```
 unique_words_hist(artist_obj_list, all_feat_artist=False, song_or_verse='verse', b=.01)
 ```
+This vizualizes distributions by verse or by song of the (total unique words)/(all words) ratio. It can read in one or multiple artists
+artist_obj_list: a list of artist objects
+all_feat_artist = False: this will usually be set to false. Only set to true when bypassing the unique artist verse list described in rap clean (true means including featured artists vs)
+song_or_verse = 'verse': user input if they want to vizualize by song or by verse
+b = .01: bin size, .01 works well
 ```
 unique_verses_bar(artist_obj_list, all_feat_artist=False, verse_count = 10)
 ```
+This plots one or multiple artists verses ranked according to their (total unique words)/(all words) ratio and sized by their word count. It can find the top verses by this metric.
+artist_obj_list: a list of artist objects
+all_feat_artist = False: this will usually be set to false. Only set to true when bypassing the unique artist verse list described in rap clean (true means including featured artists vs)
+verse_count = 10: how many verses to load into bar chart
 ```
 unique_count_to_length(artist_obj_list, all_feat_artist=False, by_alb=False)
 ```
+This plots a scatter plot where each point is a verse with the (total unique words)/(all words) ratio as the y axis and the average unique word length of the x axis. It can find verses with excptionally unique words or exceptionally long words and both
+artist_obj_list: a list of artist objects
+all_feat_artist = False: this will usually be set to false. Only set to true when bypassing the unique artist verse list described in rap clean (true means including featured artists vs)
+by_alb = False: Purely used in coloration, when False, scatter points are colored by artist. When True, scatter points are colored by album
+```
 verse_search(artist_obj, song_name, verse_number=0)
+```
+This simple function can search an artist and pull out a verse from any song in that artists works.
+artist_obj: an artist object - created in rap clean
+song_name: the song name represented as a string
+verse_number = 0: which verse to pull from the song
 ```
 class line(self, word_objs)
 ```
+This is a contianer object for word ojbects and their meta data
+word_objs: a list of word objects that assemble into the line
+ATTRIBUTES
+line.word_objs: a 1d list of word objects making up the line
+line.vowel_sounds: a 1d list representing the line as vowel sounds (used in creating graph colors)
+line.all_cmu_vowel_sounds: a 1d list of all possible vowel sounds. Similar to line.vowel_sounds, but it contains all matching cmu possible vowel sounds for every word. This simple but powerful representation of possible vowel matching allows opto to run so quickly
+line.word_to_vowels: a list of tuples. Each tuple is from a word object's matches attribute. This is used to colorize the graph
 ```
 class verse_graph(self, verse_obj, artist_name, song_name)    
 ```
+This is a way to graph verses according to color. It colorizes each syllable by broad, near, or exact matches.
+verse_obj: a verse object created in rap_clean
+artist_name: the artists name as a string
+song_name: the song name as a string
+ATTRIBUTES
+verse_graph.ver_as_lines: this is a list of line objects, line objects described above
+verse_graph.org_ver_as_lines: this is a deep copy of verse_graph.ver_as_lines. It's used when optimizing as the alogrithim starts from the original syllable breakdown.
 ```
 verse_graph.verse_graph.opto_matches(self, pop=False, exc_line=False, opto_type='exact')
 ```
+This is my favorite method ever. The algorithim isn't too complex. It essentially looks at all other lines within a radius of pop. It then will select a word's syllables (from the other possible syllable breakdonws in a rap_clean word object) and use whatever syllable has the most matches in that radius. It can optimize towards broad 'A', near 'AY', or exact 'AY0' syllable pariing (those syllables are how the CMU dict represents vowel sounds in words). It remakes verse_graph.ver_as_lines and writes a log of which syllables were changed
+pop = False: False means it will use the whole verse in optimizing each word for matches. A number N means it will look N lines above and N lines below when optimizing (total of 2N lines)
+exc_line = Flase: False means it will use the syllable breakdowns within the line the word lives in when optimizing matches. This is great for rappers that rhyme within the same line. True will exclude that line when scoring matches
+opto_type = 'exact': this defines what vowel pairing it optimizes to. As explained earlier, it can look to make as many braod matches 'AY0'=='AI1', near matches 'AY0'=='AY1' or exact matches 'AY0'=='AY0' 
 ```
 verse_graph.colorize_vowels(self, match_type='near')
 ```
+This creates a color dictionary of vowel sounds to a color. It generates colors that are equally distant based on hex coloring. It uses match_type similarly to opto_type to color according to broad, near, or exact matches
+verse_graph.match_type = 'near': broad, near, or exact matching as string
+ATTRIBUTE
+verse_graph.vowel_colors: a simple dictionary of vowel sounds to colors in this format (vowel sound:color)
 ```
 verse_graph.graph_colored_verse(self)
 ```
-Congrats on making it to the end! Didn't think anyone would TBH.
+This plots the colorized verse using html and css. It automatically creates the web based code and prints it out. It also stores the html file to pull up in another tab.
+ATTRIBUTES
+verse_graph.base_html: html (with css built in) breakdown of every word in a verse and colored accordingly 
+Congrats on making it to the end! Didn't think anyone would TBH. Go color some verses!
