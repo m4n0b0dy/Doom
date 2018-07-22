@@ -77,11 +77,11 @@ from copy import deepcopy
 ```
 pull_links(page_link, app, sng_scr=False)
 ```
-This sub function pulls a list of links to feed into scraper. It may run twice if artist page is in certain format (auto detects)\
+This sub function pulls a list of links to feed into scraper. It may run twice if artist page is in certain format (auto detects)\\
 page_link: link to page pulling links from\
 app: specialized character appending for certain artist pages\
 sng_scr = False: indicating if it's one of those special artists\
-returns list of song links
+returns: list of song links
 ```
 song_links(page_link, slept=.1)
 ```
