@@ -160,7 +160,7 @@ This function assists the adv_pull function by continually updating a dictionary
 art_dic: a dictionary containing the full query information for an individual art_list, always organized (art_list:album:song:lyrics)\
 query: this is a dictionary comprised of the returns: of a DB query\
 base_artist: this is a string of the USER INPUTTED art_list name. Otherwise, it would use the names in the DB (it gets those from ohhla)\
-use_ind_artists: a boolean that is typically false (usually use user input art_list name). If it is true, the art_dic will be organized by the names in the DB which uses the ohhla true art_list name which can contain features, typos, etc.\
+use_ind_artists: a boolean that is typically false (usually use user input art_list name). If it is true, the art_dic will be organized by the names in the DB which uses the ohhala true art_list name which can contain features, typos, etc.\
 returns: continually updating dictionary for singular art_list
 ```
 adv_pull(conn, artist_list = [''], album_list = [''], song_list = [''], use_ind_artists=False)
@@ -500,7 +500,6 @@ verse_graph.graph_colored_verse(self)
 This plots the colorized verse using html and css. It automatically creates the web based code and prints it out. It also stores the html file to pull up in another tab
 
 ATTRIBUTES\
-verse_graph.base_html: html (with css built in) breakdown of every word
-word in a verse and colored accordingly \
+verse_graph.base_html: html (with css built in) breakdown of every word in a verse and colored accordingly \
 
 Congrats on making it to the end! Didn't think anyone would TBH. Go color some verses!
