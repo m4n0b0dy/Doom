@@ -22,7 +22,7 @@ This library uses specialized artist, song, and verse objects created in rap_cle
 #### rap_mach
 This library is undergoing development. You may be able to guess by its name what it might do.
 
-## Installing and Library Dependencies
+# Installing and Library Dependencies
 
 ### Installing Doom
 ```
@@ -71,13 +71,13 @@ from IPython.core.display import display, HTML
 from copy import deepcopy
 ```
 
-## Doom Library Function and Object Guides
+# Project Doom Library Function and Object Guides
 
-#### rap_scrpr guide
+## rap_scrpr guide
 ```
 pull_links(page_link, app, sng_scr=False)
 ```
-##### This sub function pulls a list of links to feed into scraper. It may run twice if artist page is in certain format (auto detects)\
+### This sub function pulls a list of links to feed into scraper. It may run twice if artist page is in certain format (auto detects)\
 page_link: link to page pulling links from\
 app: specialized character appending for certain artist pages\
 sng_scr = False: indicating if it's one of those special artists\
