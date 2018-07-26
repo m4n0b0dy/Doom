@@ -371,7 +371,7 @@ def construct_albums(albs_dic, artist_nm):
         album_obj = album(artist_nm, alb_name, song_objs)
         albums.append(album_obj)
     return albums
-#temp album searches
+
 def construct_artists(conn, art_list = [''], alb_list = [''], sng_list = [''], use_ind_artists=False):
     record_pull = adv_pull(conn, art_list, alb_list, sng_list, use_ind_artists)
     artist_works = []
