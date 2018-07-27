@@ -1,6 +1,6 @@
 # Project Doom
 
-Project Doom is a group of 4 Python libraries used for in depth analysis of rap lyrics. Doom specifically focuses on rap verses; where other libraries analyze every word within the lyrics of a song, Doom utilizes complex but robust filtering to extract verses and verses specific to individual artists.
+Project Doom is a group of 4 Python libraries used for in depth analysis of rap verse lyrics. Doom specifically focuses on rap verses; where other libraries analyze every word within the lyrics of a song, Doom utilizes complex but robust filtering to extract verses and verses specific to individual artists.
 
 Doom is written to be powerful enough for advanced programmers to use/tweak for their own research and simple enough for new comers/non-technical rap enthusiasts to utilize. By using container functions and detailing the start to finish, full scrape to visualization process in full_proc.ipynb, I hope people from all expertise backgrounds can enjoy and learn something new. Please use/tweak full_proc.ipynb for a simple and high level guide to using Doom's libraries, this readme goes into depth regarding each function and object within each library.
 
