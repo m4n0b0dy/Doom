@@ -101,8 +101,6 @@ def unique_verses_bar(artist_obj_list, all_feat_artist=False, verse_count = 10):
 	layout = go.Layout(title='Top Unique Verses',
 						barmode='stack',
 						hovermode='closest',
-						#want solution to text alignment left
-						#https://stackoverflow.com/questions/50003531/r-plotly-hover-label-text-alignment
 						xaxis=dict(title='Words in Verse',
 						autorange=True,
 						zeroline=False,
