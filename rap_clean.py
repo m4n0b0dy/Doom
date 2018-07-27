@@ -15,7 +15,8 @@ CMU_KEYS = set(CMU_DICT.keys())
 #only run if DB has changed
 run = False
 if run:
-    sub_estconn = pg2.connect(database='rap_songs', user='keenan', host='localhost', password='keenan')
+    #change back user and password
+    sub_estconn = pg2.connect(database='rap_songs', user='*', host='localhost', password='*')
     cur = sub_estconn.cursor()
     cur.execute('''SELECT LOWER(artist_nm) FROM all_artist_names UNION SELECT LOWER(artist_name) FROM artists;''')
     query = cur.fetchall()
