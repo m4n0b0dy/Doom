@@ -15,8 +15,8 @@ CMU_KEYS = set(CMU_DICT.keys())
 #only run if DB has changed
 run = False
 if run:
-    estconn = pg2.connect(database='rap_songs', user='keenan', host='localhost', password='keenan')
-    cur = estconn.cursor()
+    sub_estconn = pg2.connect(database='rap_songs', user='keenan', host='localhost', password='keenan')
+    cur = sub_estconn.cursor()
     cur.execute('''SELECT LOWER(artist_nm) FROM all_artist_names UNION SELECT LOWER(artist_name) FROM artists;''')
     query = cur.fetchall()
     COMPLETE_RAPPERS = set()
@@ -29,7 +29,7 @@ if run:
             COMPLETE_RAPPERS = COMPLETE_RAPPERS|{name.strip()}
     COMPLETE_RAPPERS = COMPLETE_RAPPERS - {''}
     cur.close()
-    estconn.close()
+    sub_estconn.close()
     #repurposing my save and load functions
     art_save({'COMPLETE_RAPPERS':COMPLETE_RAPPERS})
 else:
@@ -92,7 +92,7 @@ class word():
         if self.found_text not in CMU_KEYS:
             self.all_found_words = get_close_matches(self.found_text, CMU_KEYS, n=5)
             if not self.all_found_words:
-                print('Error with '+self.text)
+                #print('Error with '+self.text)
                 self.found_text, self.same_vowel_sounds, self.matches = None, ['unk'], list(zip([self.text], ['unk']))
                 return None
             self.found_text = self.all_found_words[0]

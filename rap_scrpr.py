@@ -103,7 +103,7 @@ def scrape_multi_artists(conn, artist_list):
     ret_list = []
     for art in artist_list:
         page = pull_link_from_art(conn, art)
-        scraped_songs = raw_clean(song_scrape(song_links(page)), art)
+        scraped_songs = raw_clean(song_scrape(song_links(page)))
         art_file = art.replace(' ', '_').lower()
         #back up scrape to json after clean
         with open('json_lyrics/'+art_file+'_raw.json', 'w') as outfile:
