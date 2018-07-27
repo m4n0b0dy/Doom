@@ -6,7 +6,7 @@ from os import listdir
 from os import path
 from os.path import isfile, join
 
-#create the tables - will over write any data there
+#create the tables - this will over write any data there
 def create_music_tables(conn, bypass = False):
     ans = 'y'
     if not bypass:
