@@ -219,17 +219,9 @@ class verse(text_segment):
                 self.word_objs[cur_word] = word(cur_word)
                 #need this to be lower for true count
                 self.unique_words = self.unique_words|{cur_word.lower()}
-
-    def split_on_stem(self):
-        stemmer = SnowballStemmer("english")
-        self.split_on_word()
-        words_stm = [stemmer.stem(x.lower()) for x in self.all_words if stemmer.stem(x.lower()) not in stopwords.words('english')]
-        self.all_stemmed_words = list(filter(None, words_stm))
-        self.unique_stemmed_words = set(self.all_stemmed_words)
-    
+                
     def run_all_split(self):
         self.split_to_words()
-        #self.split_on_stem()
 
 class song():
     #class variable -- regex are dope
