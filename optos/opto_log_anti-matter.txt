@@ -1,0 +1,2 @@
+Change #1-loc(Line:0, Word:5): Within "to" changed "to" from "UW1(3)" to "AH0(5)"
+Change #2-loc(Line:0, Word:6): Within "get" changed "get" from "EH1(3)" to "IH1(5)"

@@ -207,9 +207,9 @@ def pull_link_from_art(conn, artist_name):
 #function to load everything into db quickly
 def bulk_load(conn, new_eds = []):
     if not new_eds:
-        new_eds = [f for f in listdir('json_lyrics/') if path.isfile(join('json_lyrics/', f))]
+        new_eds = [f.replace("_raw.json","") for f in listdir('json_lyrics/') if path.isfile(join('json_lyrics/', f))]
     for rw_new in new_eds:
-        new = rw_new.replace(' ', '_').lower()
+        new = rw_new.replace(' ', '_').lower()+'_raw.json'
         songs = json.load(open('json_lyrics/'+new))
         art_name = new.replace("_raw.json","")
         add_base(conn, art_name)

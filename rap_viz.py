@@ -187,7 +187,11 @@ class line():
         self.word_to_vowels = []
         for cur_wrd in self.word_objs:
             #used in color dictionary creation
-            self.vowel_sounds.extend(list(zip(*cur_wrd.matches))[1])
+            #need to fix this error and re run artists unfortuantely
+            try:
+                self.vowel_sounds.extend(list(zip(*cur_wrd.matches))[1])
+            except:
+                print(cur_wrd.text, cur_wrd.found_text)
             #this is for the viz
             self.word_to_vowels.append(cur_wrd.matches)            
             #this will be used in optimization
@@ -206,7 +210,7 @@ class verse_graph():
         #deep copies only so I have the original objects for restoration each time I opto
         self.org_ver_as_lines = deepcopy(self.ver_as_lines)
             
-    def opto_matches(self, pop=False, exc_line=False, opto_type='exact'):
+    def opto_matches(self, pop=False, exc_line=False, opto_type='exact', record=True):
         strt,end = verse_graph.match_dic[opto_type]
         self.ver_as_lines = deepcopy(self.org_ver_as_lines)
         #pop is the # of lines before and after to use for dic
@@ -263,11 +267,12 @@ class verse_graph():
             
         #finally reset our verse lines to updated lines
         self.ver_as_lines = optimized_lines
-        #and log changes
-        print('Changed %i sylbs!'%change_count)
-        if change_count > 0:
-            with open('optos/opto_log_%s.txt'%self.song_name.lower().replace(' ','_'), 'w') as f:
-                 f.write(opto_log)
+        if record:
+            #and log changes
+            print('Changed %i sylbs!'%change_count)
+            if change_count > 0:
+                with open('optos/opto_log_%s.txt'%self.song_name.lower().replace(' ','_'), 'w') as f:
+                     f.write(opto_log)
     
     #create a color dic corresponding to used vowel sounds
     def colorize_vowels(self, match_type='near'):

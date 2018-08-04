@@ -192,7 +192,12 @@ class word():
     #this function matches vowel sylbls to word sylbls for colorizing
     def sylbl_match(self):
         self.matches = list(zip(self.sylbl_sounds, ['unk']*len(self.sylbl_sounds)))
-        if len(self.sylbl_sounds) == len(self.vowel_sounds):
+        #address issue where cmu word on spell check has no vowels
+        if not self.sylbl_sounds:
+            self.sylbl_sounds = ['unk']
+            self.matches = list(zip([self.text], self.sylbl_sounds))
+        #otherwise procede with correct matching
+        elif len(self.sylbl_sounds) == len(self.vowel_sounds):
             self.matches = list(zip(self.sylbl_sounds, self.vowel_sounds))
 
 class text_segment():
