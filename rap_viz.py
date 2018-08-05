@@ -185,17 +185,16 @@ class line():
         self.vowel_sounds = []
         self.all_cmu_vowel_sounds = []
         self.word_to_vowels = []
+        self.words_as_strings = []
         for cur_wrd in self.word_objs:
             #used in color dictionary creation
-            #need to fix this error and re run artists unfortuantely
-            try:
-                self.vowel_sounds.extend(list(zip(*cur_wrd.matches))[1])
-            except:
-                print(cur_wrd.text, cur_wrd.found_text)
+            self.vowel_sounds.extend(list(zip(*cur_wrd.matches))[1])
             #this is for the viz
             self.word_to_vowels.append(cur_wrd.matches)            
             #this will be used in optimization
             self.all_cmu_vowel_sounds.extend(flatten(flatten(cur_wrd.same_vowel_sounds)))
+            #this is to record words as strings, mainly used in rap_mach
+            self.words_as_strings.append(cur_wrd.text)
 
 #used in both vizualizing verses and optoing sylbl matching
 class verse_graph():
