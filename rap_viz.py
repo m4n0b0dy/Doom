@@ -196,6 +196,8 @@ class line():
             #this is to record words as strings, mainly used in rap_mach
             self.words_as_strings.append(cur_wrd.text)
             self.uniq_words_as_strings = self.uniq_words_as_strings|{cur_wrd.text.lower()}
+        self.words_as_strings = list(filter(None, self.words_as_strings))
+        self.uniq_words_as_strings = self.uniq_words_as_strings - {''}
 
 #used in both vizualizing verses and optoing sylbl matching
 class verse_graph():
