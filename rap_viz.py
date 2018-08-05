@@ -185,7 +185,7 @@ class line():
         self.vowel_sounds = []
         self.all_cmu_vowel_sounds = []
         self.word_to_vowels = []
-        self.words_as_strings = []
+        self.words_as_strings, self.uniq_words_as_strings = [], set()
         for cur_wrd in self.word_objs:
             #used in color dictionary creation
             self.vowel_sounds.extend(list(zip(*cur_wrd.matches))[1])
@@ -195,6 +195,7 @@ class line():
             self.all_cmu_vowel_sounds.extend(flatten(flatten(cur_wrd.same_vowel_sounds)))
             #this is to record words as strings, mainly used in rap_mach
             self.words_as_strings.append(cur_wrd.text)
+            self.uniq_words_as_strings = self.uniq_words_as_strings|{cur_wrd.text.lower()}
 
 #used in both vizualizing verses and optoing sylbl matching
 class verse_graph():
