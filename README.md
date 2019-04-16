@@ -1,6 +1,6 @@
 # Project Doom
 
-To see what Doom can do in Jupyter, [click here](https://nbviewer.jupyter.org/github/m4n0b0dy/Doom/blob/master/full_proc.ipynb).
+To see what Doom can do in Jupyter Notebook, [click here](https://nbviewer.jupyter.org/github/m4n0b0dy/Doom/blob/master/full_proc.ipynb).
 
 Project Doom is a group of 4 Python libraries used for in depth analysis of rap verse lyrics, rhyming schematic optimization, and rapper classification from meta rhyme data. Doom specifically focuses on rap verses; where other libraries analyze every word within the lyrics of a song, Doom utilizes complex but robust filtering to extract verses and verses specific to individual artists.
 
